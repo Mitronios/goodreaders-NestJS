@@ -72,4 +72,13 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // Specific rules for DTO files with decorators
+    files: ['**/*.dto.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+    },
+  },
 );
