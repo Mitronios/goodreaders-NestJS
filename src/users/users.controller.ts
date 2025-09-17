@@ -16,41 +16,34 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 @UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Public()
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @UseGuards()
   async create(@Body(ValidationPipe) createUserDto: CreateUserDto) {
-    return await this.usersService.create(createUserDto);
+    return this.usersService.create(createUserDto);
   }
 
   @Get()
-  async findAll(@Query('active') active?: string) {
-    if (active === 'true') {
-      return await this.usersService.findActiveUsers();
-    }
-    return await this.usersService.findAll();
+  async findAll() {
+    return this.usersService.findAll();
   }
 
-  @Get('count')
-  async count() {
-    const total = await this.usersService.count();
-    return { total };
+  // GET /users/search?email=user@example.com
+  @Get('search')
+  async findByEmail(@Query('email') email: string) {
+    return this.usersService.findByEmail(email);
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return await this.usersService.findOne(id);
-  }
-
-  @Get('email/:email')
-  async findByEmail(@Param('email') email: string) {
-    return await this.usersService.findByEmail(email);
+    return this.usersService.findOne(id);
   }
 
   @Patch(':id')
@@ -58,12 +51,7 @@ export class UsersController {
     @Param('id') id: string,
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
   ) {
-    return await this.usersService.update(id, updateUserDto);
-  }
-
-  @Patch(':id/last-login')
-  async updateLastLogin(@Param('id') id: string) {
-    return await this.usersService.updateLastLogin(id);
+    return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
