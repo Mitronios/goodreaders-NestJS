@@ -2,7 +2,6 @@ import {
   IsEmail,
   IsString,
   IsOptional,
-  IsBoolean,
   MinLength,
   MaxLength,
   IsIn,
@@ -17,18 +16,13 @@ export class CreateUserDto {
   @IsEmail()
   email: string;
 
-  @IsOptional()
   @IsString()
-  @MaxLength(500)
-  bio?: string;
+  @MinLength(5)
+  password: string;
 
   @IsOptional()
   @IsString()
   avatar?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  isActive?: boolean;
 
   @IsOptional()
   @IsString()
