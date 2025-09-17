@@ -9,6 +9,7 @@ import {
   HttpCode,
   HttpStatus,
   ValidationPipe,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -25,28 +26,23 @@ export class UsersController {
   @HttpCode(HttpStatus.CREATED)
   @UseGuards()
   async create(@Body(ValidationPipe) createUserDto: CreateUserDto) {
-    return await this.usersService.create(createUserDto);
+    return this.usersService.create(createUserDto);
   }
 
   @Get()
   async findAll() {
-    return await this.usersService.findAll();
-  }
-
-  @Get('count')
-  async count() {
-    const total = await this.usersService.count();
-    return { total };
+    return this.usersService.findAll();
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return await this.usersService.findOne(id);
+    return this.usersService.findOne(id);
   }
 
-  @Get('email/:email')
-  async findByEmail(@Param('email') email: string) {
-    return await this.usersService.findByEmail(email);
+  // GET /users/search?email=user@example.com
+  @Get('search')
+  async findByEmail(@Query('email') email: string) {
+    return this.usersService.findByEmail(email);
   }
 
   @Patch(':id')
@@ -54,7 +50,7 @@ export class UsersController {
     @Param('id') id: string,
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
   ) {
-    return await this.usersService.update(id, updateUserDto);
+    return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
