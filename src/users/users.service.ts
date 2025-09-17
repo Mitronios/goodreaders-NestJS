@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import * as bcrypt from 'bcrypt';
 import { User } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -15,7 +16,10 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
-      const createdUser = new this.userModel(createUserDto);
+      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+      const userData = { ...createUserDto, password: hashedPassword };
+
+      const createdUser = new this.userModel(userData);
       return await createdUser.save();
     } catch (error) {
       if (error instanceof Error && 'code' in error && error.code === 11000) {
@@ -47,8 +51,13 @@ export class UsersService {
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     try {
+      const updateData = { ...updateUserDto };
+      if (updateData.password) {
+        updateData.password = await bcrypt.hash(updateData.password, 10);
+      }
+
       const updatedUser = await this.userModel
-        .findByIdAndUpdate(id, updateUserDto, { new: true })
+        .findByIdAndUpdate(id, updateData, { new: true })
         .exec();
 
       if (!updatedUser) {
@@ -69,9 +78,5 @@ export class UsersService {
     if (!result) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-  }
-
-  async count(): Promise<number> {
-    return await this.userModel.countDocuments().exec();
   }
 }

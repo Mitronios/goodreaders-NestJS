@@ -35,15 +35,15 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
-  }
-
   // GET /users/search?email=user@example.com
   @Get('search')
   async findByEmail(@Query('email') email: string) {
     return this.usersService.findByEmail(email);
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    return this.usersService.findOne(id);
   }
 
   @Patch(':id')
