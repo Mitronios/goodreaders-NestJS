@@ -71,22 +71,6 @@ export class UsersService {
     }
   }
 
-  async updateLastLogin(id: string): Promise<User> {
-    const user = await this.userModel
-      .findByIdAndUpdate(id, { lastLogin: new Date() }, { new: true })
-      .exec();
-
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
-    }
-
-    return user;
-  }
-
-  async findActiveUsers(): Promise<User[]> {
-    return await this.userModel.find({ isActive: true }).exec();
-  }
-
   async count(): Promise<number> {
     return await this.userModel.countDocuments().exec();
   }

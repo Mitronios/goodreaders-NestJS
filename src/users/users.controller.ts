@@ -9,7 +9,6 @@ import {
   HttpCode,
   HttpStatus,
   ValidationPipe,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -30,10 +29,7 @@ export class UsersController {
   }
 
   @Get()
-  async findAll(@Query('active') active?: string) {
-    if (active === 'true') {
-      return await this.usersService.findActiveUsers();
-    }
+  async findAll() {
     return await this.usersService.findAll();
   }
 
@@ -59,11 +55,6 @@ export class UsersController {
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
   ) {
     return await this.usersService.update(id, updateUserDto);
-  }
-
-  @Patch(':id/last-login')
-  async updateLastLogin(@Param('id') id: string) {
-    return await this.usersService.updateLastLogin(id);
   }
 
   @Delete(':id')
