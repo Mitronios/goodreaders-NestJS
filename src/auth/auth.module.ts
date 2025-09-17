@@ -12,10 +12,10 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     PassportModule,
     JwtModule.register({
       secret: 'utilizarenv', //SUSTITUIR POR ENV
-      signOptions: {expiresIn: '2h'},
+      signOptions: { expiresIn: '2h' },
     }),
   ],
   providers: [AuthService, JwtStrategy],
-  controllers: [AuthController]
+  controllers: [AuthController],
 })
 export class AuthModule {}

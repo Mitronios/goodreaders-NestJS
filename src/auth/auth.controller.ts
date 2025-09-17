@@ -11,14 +11,14 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto) {
     const user = await this.authService.validateUser(
       loginDto.email,
-      loginDto.password
-    )
-    return this.authService.login(user)
+      loginDto.password,
+    );
+    return this.authService.login(user);
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout() {
-    return {message: 'Logout successful'}
+    return { message: 'Logout successful' };
   }
 }
