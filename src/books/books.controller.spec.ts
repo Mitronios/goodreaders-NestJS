@@ -44,7 +44,6 @@ describe('BooksController', () => {
         review: 'Test review',
         genre: ['Test Genre'],
         rating: 5,
-        wantToRead: false,
       };
 
       const mockBook = { id: '1', ...createBookDto };

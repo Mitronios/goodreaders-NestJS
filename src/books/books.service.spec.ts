@@ -18,7 +18,6 @@ describe('BooksService', () => {
     review: 'Test review',
     genre: ['Test Genre'],
     rating: 5,
-    wantToRead: false,
     createdAt: new Date(),
     updatedAt: new Date(),
     save: jest.fn(),
@@ -61,7 +60,6 @@ describe('BooksService', () => {
         review: 'Test review',
         genre: ['Test Genre'],
         rating: 5,
-        wantToRead: false,
       };
 
       mockBookModel.create.mockResolvedValue(mockBookDocument);

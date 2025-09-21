@@ -39,10 +39,4 @@ export class BooksController {
   remove(@Param('id') id: string) {
     return this.booksService.remove(id);
   }
-
-  /* Opcional: toggle “want to read” */
-  @Post(':id/wanted')
-  markWanted(@Param('id') id: string) {
-    return this.booksService.markWantToRead(id);
-  }
 }
