@@ -35,7 +35,7 @@ export class CreateBookDto {
   @ArrayNotEmpty()
   @IsString({ each: true })
   genre: string[];
-
+  
   @IsInt()
   @Min(1)
   @Max(5)
