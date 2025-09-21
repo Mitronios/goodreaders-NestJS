@@ -11,14 +11,13 @@ describe('BooksService', () => {
   let mockBookModel: any;
 
   const mockBookDocument = {
-    _id: 'test-book-id-123',
+    id: 'test-book-id-123',
     title: 'Test Book',
     author: 'Test Author',
     description: 'Test description',
     review: 'Test review',
     genre: ['Test Genre'],
     rating: 5,
-    wantToRead: false,
     createdAt: new Date(),
     updatedAt: new Date(),
     save: jest.fn(),
@@ -61,7 +60,6 @@ describe('BooksService', () => {
         review: 'Test review',
         genre: ['Test Genre'],
         rating: 5,
-        wantToRead: false,
       };
 
       mockBookModel.create.mockResolvedValue(mockBookDocument);
@@ -155,7 +153,7 @@ describe('BooksService', () => {
 
       await service.remove(bookId);
 
-      expect(mockBookModel.deleteOne).toHaveBeenCalledWith({ _id: bookId });
+      expect(mockBookModel.deleteOne).toHaveBeenCalledWith({ id: bookId });
     });
 
     it('should throw NotFoundException when book to remove not found', async () => {

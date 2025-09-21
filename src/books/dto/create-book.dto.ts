@@ -1,7 +1,6 @@
 import {
   IsArray,
   ArrayNotEmpty,
-  IsBoolean,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -36,11 +35,7 @@ export class CreateBookDto {
   @ArrayNotEmpty()
   @IsString({ each: true })
   genre: string[];
-
-  @IsOptional()
-  @IsBoolean()
-  wantToRead = false;
-
+  
   @IsInt()
   @Min(1)
   @Max(5)

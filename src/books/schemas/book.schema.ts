@@ -21,9 +21,6 @@ export class Book {
   @Prop({ type: [String], default: [] })
   genre: string[];
 
-  @Prop({ default: false })
-  wantToRead: boolean;
-
   @Prop({ required: true, min: 1, max: 5 })
   rating: number;
 }
