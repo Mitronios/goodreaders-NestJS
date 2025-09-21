@@ -37,12 +37,4 @@ export class BooksService {
     const res = await this.bookModel.deleteOne({ id: id });
     if (res.deletedCount === 0) throw new NotFoundException('Book not found');
   }
-
-  async markWantToRead(id: string): Promise<BookDocument> {
-    const book = await this.bookModel.findById(id);
-    if (!book) throw new NotFoundException('Book not found');
-    book.wantToRead = true;
-    await book.save();
-    return book;
-  }
 }
