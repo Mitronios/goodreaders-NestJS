@@ -47,7 +47,7 @@ describe('BooksController', () => {
         wantToRead: false,
       };
 
-      const mockBook = { _id: '1', ...createBookDto };
+      const mockBook = { id: '1', ...createBookDto };
       mockBooksService.create.mockResolvedValue(mockBook);
 
       const result = await controller.create(createBookDto);
@@ -60,8 +60,8 @@ describe('BooksController', () => {
   describe('findAll', () => {
     it('should return all books', async () => {
       const mockBooks = [
-        { _id: '1', title: 'Test Book 1', author: 'Test Author 1' },
-        { _id: '2', title: 'Test Book 2', author: 'Test Author 2' },
+        { id: '1', title: 'Test Book 1', author: 'Test Author 1' },
+        { id: '2', title: 'Test Book 2', author: 'Test Author 2' },
       ];
 
       mockBooksService.findAll.mockResolvedValue(mockBooks);
@@ -77,7 +77,7 @@ describe('BooksController', () => {
     it('should return a book by id', async () => {
       const bookId = '1';
       const mockBook = {
-        _id: bookId,
+        id: bookId,
         title: 'Test Book',
         author: 'Test Author',
       };
@@ -96,7 +96,7 @@ describe('BooksController', () => {
       const bookId = '1';
       const updateBookDto: UpdateBookDto = { title: 'Updated Test Book' };
       const mockBook = {
-        _id: bookId,
+        id: bookId,
         title: 'Updated Test Book',
         author: 'Test Author',
       };

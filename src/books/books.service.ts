@@ -34,7 +34,7 @@ export class BooksService {
   }
 
   async remove(id: string): Promise<void> {
-    const res = await this.bookModel.deleteOne({ _id: id });
+    const res = await this.bookModel.deleteOne({ id: id });
     if (res.deletedCount === 0) throw new NotFoundException('Book not found');
   }
 

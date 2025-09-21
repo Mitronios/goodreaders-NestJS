@@ -11,7 +11,7 @@ describe('BooksService', () => {
   let mockBookModel: any;
 
   const mockBookDocument = {
-    _id: 'test-book-id-123',
+    id: 'test-book-id-123',
     title: 'Test Book',
     author: 'Test Author',
     description: 'Test description',
@@ -155,7 +155,7 @@ describe('BooksService', () => {
 
       await service.remove(bookId);
 
-      expect(mockBookModel.deleteOne).toHaveBeenCalledWith({ _id: bookId });
+      expect(mockBookModel.deleteOne).toHaveBeenCalledWith({ id: bookId });
     });
 
     it('should throw NotFoundException when book to remove not found', async () => {
