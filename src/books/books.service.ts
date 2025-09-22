@@ -11,38 +11,51 @@ export class BooksService {
     @InjectModel(Book.name) private readonly bookModel: Model<BookDocument>,
   ) {}
 
-  async create(dto: CreateBookDto): Promise<BookDocument> {
-    return this.bookModel.create(dto);
+  /* Mapper: _id → id */
+  private toFrontend(book: BookDocument) {
+    const obj = book.toObject({ virtuals: false });
+    return {
+      id: obj._id.toString(),
+      title: obj.title,
+      author: obj.author,
+      description: obj.description,
+      review: obj.review,
+      cover: obj.cover,
+      genre: obj.genre,
+      rating: obj.rating,
+      createdAt: obj.createdAt,
+      updatedAt: obj.updatedAt,
+    };
   }
 
-  async findAll(): Promise<BookDocument[]> {
-    return this.bookModel.find().exec();
+  /* CRUD usando el mapper */
+
+  async create(dto: CreateBookDto) {
+    const book = await this.bookModel.create(dto);
+    return this.toFrontend(book);
   }
 
-  async findOne(id: string): Promise<BookDocument> {
+  async findAll() {
+    const books = await this.bookModel.find().exec();
+    return books.map(b => this.toFrontend(b));
+  }
+
+  async findOne(id: string) {
     const book = await this.bookModel.findById(id).exec();
     if (!book) throw new NotFoundException('Book not found');
-    return book;
+    return this.toFrontend(book);
   }
 
-  async update(id: string, dto: UpdateBookDto): Promise<BookDocument> {
+  async update(id: string, dto: UpdateBookDto) {
     const book = await this.bookModel
       .findByIdAndUpdate(id, dto, { new: true })
       .exec();
     if (!book) throw new NotFoundException('Book not found');
-    return book;
+    return this.toFrontend(book);
   }
 
-  async remove(id: string): Promise<void> {
-    const res = await this.bookModel.deleteOne({ id: id });
+  async remove(id: string) {
+    const res = await this.bookModel.deleteOne({ _id: id });
     if (res.deletedCount === 0) throw new NotFoundException('Book not found');
-  }
-
-  async markWantToRead(id: string): Promise<BookDocument> {
-    const book = await this.bookModel.findById(id);
-    if (!book) throw new NotFoundException('Book not found');
-    book.wantToRead = true;
-    await book.save();
-    return book;
   }
 }
