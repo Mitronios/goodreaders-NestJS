@@ -15,7 +15,7 @@ export class AuthService {
     const user = await this.usersService.findByEmail(email).catch(() => null);
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials')
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const isMatch = await bcrypt.compare(pass, user.password);
@@ -28,8 +28,12 @@ export class AuthService {
     return result;
   }
 
-  async login(user: {email: string; _id: string; role: string}) {
-    const payload: JwtPayload = { email: user.email, sub: user._id, role: user.role };
+  async login(user: { email: string; _id: string; role: string }) {
+    const payload: JwtPayload = {
+      email: user.email,
+      sub: user._id,
+      role: user.role,
+    };
     return {
       access_token: this.jwtService.sign(payload),
     };

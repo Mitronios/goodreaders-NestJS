@@ -24,10 +24,11 @@ import { ThrottlerModule } from '@nestjs/throttler';
       }),
       inject: [ConfigService],
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 60,
-      limit: 5,
-    }
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60,
+        limit: 5,
+      },
     ]),
     UsersModule,
     BooksModule,
