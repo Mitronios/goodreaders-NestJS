@@ -4,6 +4,8 @@ import { Model } from 'mongoose';
 import { Book, BookDocument } from './schemas/book.schema';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { BookResponseDto } from './dto/book-response.dto';
+import { BookResponseMapper } from './mappers/book-response.mapper';
 
 @Injectable()
 export class BooksService {
@@ -11,47 +13,30 @@ export class BooksService {
     @InjectModel(Book.name) private readonly bookModel: Model<BookDocument>,
   ) {}
 
-  /* Mapper: _id → id */
-  private toFrontend(book: BookDocument) {
-    const obj = book.toObject({ virtuals: false });
-    return {
-      id: obj._id.toString(),
-      title: obj.title,
-      author: obj.author,
-      description: obj.description,
-      review: obj.review,
-      cover: obj.cover,
-      genre: obj.genre,
-      rating: obj.rating,
-      createdAt: obj.createdAt,
-      updatedAt: obj.updatedAt,
-    };
-  }
+  /* CRUD using BookResponseDto */
 
-  /* CRUD usando el mapper */
-
-  async create(dto: CreateBookDto) {
+  async create(dto: CreateBookDto): Promise<BookResponseDto> {
     const book = await this.bookModel.create(dto);
-    return this.toFrontend(book);
+    return BookResponseMapper.toResponse(book);
   }
 
-  async findAll() {
+  async findAll(): Promise<BookResponseDto[]> {
     const books = await this.bookModel.find().exec();
-    return books.map(b => this.toFrontend(b));
+    return BookResponseMapper.toResponseArray(books);
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<BookResponseDto> {
     const book = await this.bookModel.findById(id).exec();
     if (!book) throw new NotFoundException('Book not found');
-    return this.toFrontend(book);
+    return BookResponseMapper.toResponse(book);
   }
 
-  async update(id: string, dto: UpdateBookDto) {
+  async update(id: string, dto: UpdateBookDto): Promise<BookResponseDto> {
     const book = await this.bookModel
       .findByIdAndUpdate(id, dto, { new: true })
       .exec();
     if (!book) throw new NotFoundException('Book not found');
-    return this.toFrontend(book);
+    return BookResponseMapper.toResponse(book);
   }
 
   async remove(id: string) {
