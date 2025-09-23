@@ -5,13 +5,14 @@ import { Book } from './schemas/book.schema';
 import { NotFoundException } from '@nestjs/common';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { BookResponseDto } from './dto/book-response.dto';
 
 describe('BooksService', () => {
   let service: BooksService;
   let mockBookModel: any;
 
   const mockBookDocument = {
-    id: 'test-book-id-123',
+    _id: 'test-book-id-123',
     title: 'Test Book',
     author: 'Test Author',
     description: 'Test description',
@@ -52,7 +53,7 @@ describe('BooksService', () => {
   });
 
   describe('create', () => {
-    it('should create a new book', async () => {
+    it('should create a new book and return BookResponseDto', async () => {
       const createBookDto: CreateBookDto = {
         title: 'Test Book',
         author: 'Test Author',
@@ -67,12 +68,15 @@ describe('BooksService', () => {
       const result = await service.create(createBookDto);
 
       expect(mockBookModel.create).toHaveBeenCalledWith(createBookDto);
-      expect(result).toEqual(mockBookDocument);
+      expect(result).toBeInstanceOf(BookResponseDto);
+      expect(result.id).toBe('test-book-id-123');
+      expect(result.title).toBe('Test Book');
+      expect(result.author).toBe('Test Author');
     });
   });
 
   describe('findAll', () => {
-    it('should return an array of books', async () => {
+    it('should return an array of BookResponseDto', async () => {
       const books = [mockBookDocument];
 
       mockBookModel.find.mockReturnValue({
@@ -82,12 +86,14 @@ describe('BooksService', () => {
       const result = await service.findAll();
 
       expect(mockBookModel.find).toHaveBeenCalled();
-      expect(result).toEqual(books);
+      expect(result).toHaveLength(1);
+      expect(result[0]).toBeInstanceOf(BookResponseDto);
+      expect(result[0].id).toBe('test-book-id-123');
     });
   });
 
   describe('findOne', () => {
-    it('should return a book by id', async () => {
+    it('should return a BookResponseDto by id', async () => {
       const bookId = 'test-book-id-123';
 
       mockBookModel.findById.mockReturnValue({
@@ -97,7 +103,9 @@ describe('BooksService', () => {
       const result = await service.findOne(bookId);
 
       expect(mockBookModel.findById).toHaveBeenCalledWith(bookId);
-      expect(result).toEqual(mockBookDocument);
+      expect(result).toBeInstanceOf(BookResponseDto);
+      expect(result.id).toBe('test-book-id-123');
+      expect(result.title).toBe('Test Book');
     });
 
     it('should throw NotFoundException when book not found', async () => {
@@ -112,7 +120,7 @@ describe('BooksService', () => {
   });
 
   describe('update', () => {
-    it('should update a book', async () => {
+    it('should update a book and return BookResponseDto', async () => {
       const bookId = 'test-book-id-123';
       const updateBookDto: UpdateBookDto = { title: 'Updated Test Book' };
       const updatedBook = { ...mockBookDocument, ...updateBookDto };
@@ -128,7 +136,9 @@ describe('BooksService', () => {
         updateBookDto,
         { new: true },
       );
-      expect(result).toEqual(updatedBook);
+      expect(result).toBeInstanceOf(BookResponseDto);
+      expect(result.id).toBe('test-book-id-123');
+      expect(result.title).toBe('Updated Test Book');
     });
 
     it('should throw NotFoundException when book to update not found', async () => {
@@ -153,7 +163,7 @@ describe('BooksService', () => {
 
       await service.remove(bookId);
 
-      expect(mockBookModel.deleteOne).toHaveBeenCalledWith({ id: bookId });
+      expect(mockBookModel.deleteOne).toHaveBeenCalledWith({ _id: bookId });
     });
 
     it('should throw NotFoundException when book to remove not found', async () => {
