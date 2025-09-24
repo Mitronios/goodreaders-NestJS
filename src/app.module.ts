@@ -5,6 +5,7 @@ import { UsersModule } from './users/users.module';
 import { BooksModule } from './books/books.module';
 import { AuthModule } from './auth/auth.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { throttlerConfig } from './config/throttler.config';
 
 @Module({
   imports: [
@@ -24,12 +25,11 @@ import { ThrottlerModule } from '@nestjs/throttler';
       }),
       inject: [ConfigService],
     }),
-    ThrottlerModule.forRoot([
-      {
-        ttl: 60,
-        limit: 5,
-      },
-    ]),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: throttlerConfig,
+    }),
     UsersModule,
     BooksModule,
     AuthModule,
