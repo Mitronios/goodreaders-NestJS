@@ -5,6 +5,7 @@ import { UsersModule } from './users/users.module';
 import { BooksModule } from './books/books.module';
 import { AuthModule } from './auth/auth.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { throttlerConfig } from './config/throttler.config';
 
 @Module({
   imports: [
@@ -28,12 +29,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
       {
         imports: [ConfigModule],
         inject: [ConfigService],
-        useFactory: (configService: ConfigService) => [
-          {
-            ttl: configService.get<number>('THROTTLE_TTL') ?? 60,
-            limit: configService.get<number>('THROTTLE_LIMIT') ?? 5,
-          }
-        ]
+        useFactory: throttlerConfig,
       },
     ),
     UsersModule,

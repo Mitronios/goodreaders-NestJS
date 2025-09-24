@@ -1,6 +1,7 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,6 +21,11 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  const throttlerStorage = app.get('ThrottlerStorageService');
+  const throttlerOptions = app.get('ThrottlerOptions');
+  const reflector = app.get(Reflector);
+  app.useGlobalGuards(new ThrottlerGuard(throttlerStorage, throttlerOptions, reflector));
 
   await app.listen(process.env.PORT ?? 3000);
 }
