@@ -25,7 +25,9 @@ async function bootstrap() {
   const throttlerStorage = app.get('ThrottlerStorageService');
   const throttlerOptions = app.get('ThrottlerOptions');
   const reflector = app.get(Reflector);
-  app.useGlobalGuards(new ThrottlerGuard(throttlerStorage, throttlerOptions, reflector));
+  app.useGlobalGuards(
+    new ThrottlerGuard(throttlerStorage, throttlerOptions, reflector),
+  );
 
   await app.listen(process.env.PORT ?? 3000);
 }

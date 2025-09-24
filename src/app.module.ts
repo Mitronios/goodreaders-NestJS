@@ -25,13 +25,11 @@ import { throttlerConfig } from './config/throttler.config';
       }),
       inject: [ConfigService],
     }),
-    ThrottlerModule.forRootAsync(
-      {
-        imports: [ConfigModule],
-        inject: [ConfigService],
-        useFactory: throttlerConfig,
-      },
-    ),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: throttlerConfig,
+    }),
     UsersModule,
     BooksModule,
     AuthModule,
