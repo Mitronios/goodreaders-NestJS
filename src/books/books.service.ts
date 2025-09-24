@@ -43,4 +43,10 @@ export class BooksService {
     const res = await this.bookModel.deleteOne({ _id: id });
     if (res.deletedCount === 0) throw new NotFoundException('Book not found');
   }
+
+  /* Get all available genres */
+
+  async getAllGenres(): Promise<string[]> {
+    return this.bookModel.distinct('genre');
+  }
 }

@@ -30,6 +30,7 @@ describe('BooksService', () => {
     findById: jest.fn(),
     findByIdAndUpdate: jest.fn(),
     deleteOne: jest.fn(),
+    distinct: jest.fn(),
     exec: jest.fn(),
   };
 
