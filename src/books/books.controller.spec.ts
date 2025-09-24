@@ -14,6 +14,7 @@ describe('BooksController', () => {
     findOne: jest.fn(),
     update: jest.fn(),
     remove: jest.fn(),
+    getAllGenres: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -161,6 +162,39 @@ describe('BooksController', () => {
       await controller.remove(bookId);
 
       expect(mockBooksService.remove).toHaveBeenCalledWith(bookId);
+    });
+  });
+
+  describe('getAllGenres', () => {
+    it('should return an array of unique genres', async () => {
+      const mockGenres = ['Fiction', 'Mystery', 'Romance', 'Science Fiction'];
+
+      mockBooksService.getAllGenres.mockResolvedValue(mockGenres);
+
+      const result = await controller.getAllGenres();
+
+      expect(mockBooksService.getAllGenres).toHaveBeenCalled();
+      expect(result).toEqual(mockGenres);
+      expect(result).toHaveLength(4);
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    it('should return an empty array when no genres exist', async () => {
+      mockBooksService.getAllGenres.mockResolvedValue([]);
+
+      const result = await controller.getAllGenres();
+
+      expect(mockBooksService.getAllGenres).toHaveBeenCalled();
+      expect(result).toEqual([]);
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    it('should handle service errors and propagate them', async () => {
+      const error = new Error('Service error');
+      mockBooksService.getAllGenres.mockRejectedValue(error);
+
+      await expect(controller.getAllGenres()).rejects.toThrow('Service error');
+      expect(mockBooksService.getAllGenres).toHaveBeenCalled();
     });
   });
 });

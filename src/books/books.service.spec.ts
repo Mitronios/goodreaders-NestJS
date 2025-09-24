@@ -30,6 +30,7 @@ describe('BooksService', () => {
     findById: jest.fn(),
     findByIdAndUpdate: jest.fn(),
     deleteOne: jest.fn(),
+    distinct: jest.fn(),
     exec: jest.fn(),
   };
 
@@ -172,6 +173,41 @@ describe('BooksService', () => {
       mockBookModel.deleteOne.mockResolvedValue({ deletedCount: 0 });
 
       await expect(service.remove(bookId)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('getAllGenres', () => {
+    it('should return an array of unique genres', async () => {
+      const mockGenres = ['Fiction', 'Mystery', 'Romance', 'Science Fiction'];
+
+      mockBookModel.distinct.mockResolvedValue(mockGenres);
+
+      const result = await service.getAllGenres();
+
+      expect(mockBookModel.distinct).toHaveBeenCalledWith('genre');
+      expect(result).toEqual(mockGenres);
+      expect(result).toHaveLength(4);
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    it('should return an empty array when no genres exist', async () => {
+      mockBookModel.distinct.mockResolvedValue([]);
+
+      const result = await service.getAllGenres();
+
+      expect(mockBookModel.distinct).toHaveBeenCalledWith('genre');
+      expect(result).toEqual([]);
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    it('should handle database errors gracefully', async () => {
+      const error = new Error('Database connection failed');
+      mockBookModel.distinct.mockRejectedValue(error);
+
+      await expect(service.getAllGenres()).rejects.toThrow(
+        'Database connection failed',
+      );
+      expect(mockBookModel.distinct).toHaveBeenCalledWith('genre');
     });
   });
 });
