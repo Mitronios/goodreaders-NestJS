@@ -24,12 +24,18 @@ import { ThrottlerModule } from '@nestjs/throttler';
       }),
       inject: [ConfigService],
     }),
-    ThrottlerModule.forRoot([
+    ThrottlerModule.forRootAsync(
       {
-        ttl: 60,
-        limit: 5,
+        imports: [ConfigModule],
+        inject: [ConfigService],
+        useFactory: (configService: ConfigService) => [
+          {
+            ttl: configService.get<number>('THROTTLE_TTL') ?? 60,
+            limit: configService.get<number>('THROTTLE_LIMIT') ?? 5,
+          }
+        ]
       },
-    ]),
+    ),
     UsersModule,
     BooksModule,
     AuthModule,
