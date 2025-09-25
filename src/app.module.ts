@@ -4,8 +4,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { BooksModule } from './books/books.module';
 import { AuthModule } from './auth/auth.module';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { throttlerConfig } from './config/throttler.config';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -33,6 +34,12 @@ import { throttlerConfig } from './config/throttler.config';
     UsersModule,
     BooksModule,
     AuthModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}
