@@ -4,6 +4,7 @@ import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UnauthorizedException } from '@nestjs/common';
+import { ValidatedUser } from './interfaces/validateUser';
 
 jest.mock('bcrypt', () => ({
   compare: jest.fn(),
@@ -42,17 +43,25 @@ describe('AuthService', () => {
 
   describe('validateUser', () => {
     it('should return user data without password if valid credentials', async () => {
-      const mockUser: any = {
+      const mockUser = {
         email: 'test@example.com',
         password: 'hashedPass',
         role: 'user',
         _id: '111',
-        toObject: function () {
+        name: 'Test User',
+        avatar: 'avatar.jpg',
+        createdAt: new Date('2023-01-01'),
+        updatedAt: new Date('2023-01-01'),
+        toObject() {
           return {
             email: this.email,
             password: this.password,
             role: this.role,
             _id: this._id,
+            name: this.name,
+            avatar: this.avatar,
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt,
           };
         },
       };
@@ -60,21 +69,29 @@ describe('AuthService', () => {
       usersService.findByEmail!.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      const result = await service.validateUser('test@example.com', 'password');
+      const result: ValidatedUser = await service.validateUser(
+        'test@example.com',
+        'password',
+      );
 
       expect(usersService.findByEmail).toHaveBeenCalledWith('test@example.com');
       expect(result).toEqual({
         email: 'test@example.com',
         role: 'user',
         _id: '111',
+        name: 'Test User',
+        avatar: 'avatar.jpg',
+        createdAt: new Date('2023-01-01'),
+        updatedAt: new Date('2023-01-01'),
       });
+      expect(result).not.toHaveProperty('password');
     });
 
     it('should throw UnauthorizedException if wrong password', async () => {
-      const mockUser: any = {
+      const mockUser = {
         email: 'test@example.com',
         password: 'hashedPass',
-        toObject: function () {
+        toObject() {
           return { email: this.email, password: this.password };
         },
       };
@@ -95,7 +112,7 @@ describe('AuthService', () => {
 
       jwtService.sign!.mockReturnValue(mockToken);
 
-      const result = await service.login(mockUser);
+      const result = service.login(mockUser);
 
       expect(jwtService.sign).toHaveBeenCalledWith({
         email: mockUser.email,
