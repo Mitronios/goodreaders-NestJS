@@ -6,12 +6,16 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { BookResponseDto } from './dto/book-response.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Public } from 'src/auth/decorators/public.decorator';
 
+@UseGuards(JwtAuthGuard)
 @Controller('books')
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
@@ -21,6 +25,7 @@ export class BooksController {
     return this.booksService.create(dto);
   }
 
+  @Public()
   @Get()
   findAll(): Promise<BookResponseDto[]> {
     return this.booksService.findAll();
