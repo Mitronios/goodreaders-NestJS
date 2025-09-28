@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -71,6 +72,59 @@ export class UsersService {
       }
       throw error;
     }
+  }
+
+  async updateWantToReadStatus(
+    userId: string,
+    bookId: string,
+    wantToRead: boolean,
+  ): Promise<User> {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    const normalizedBookId = bookId.trim();
+    if (!normalizedBookId) {
+      throw new BadRequestException('Book ID cannot be empty');
+    }
+
+    const entriesByBookId = new Map<
+      string,
+      { bookId: string; wantToRead: boolean }
+    >();
+
+    if (Array.isArray(user.books)) {
+      for (const entry of user.books) {
+        if (!entry || typeof entry.bookId !== 'string') {
+          continue;
+        }
+
+        const entryBookId = entry.bookId.trim();
+        if (!entryBookId) {
+          continue;
+        }
+
+        entriesByBookId.set(entryBookId, {
+          bookId: entryBookId,
+          wantToRead: Boolean(entry.wantToRead),
+        });
+      }
+    }
+
+    if (wantToRead) {
+      entriesByBookId.set(normalizedBookId, {
+        bookId: normalizedBookId,
+        wantToRead: true,
+      });
+    } else {
+      entriesByBookId.delete(normalizedBookId);
+    }
+
+    user.books = Array.from(entriesByBookId.values());
+    user.markModified('books');
+
+    return await user.save();
   }
 
   async remove(id: string): Promise<void> {
