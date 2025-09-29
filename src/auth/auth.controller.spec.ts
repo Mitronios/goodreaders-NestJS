@@ -6,6 +6,12 @@ import { ValidatedUser } from './interfaces/validateUser';
 
 describe('AuthController', () => {
   let controller: AuthController;
+  
+import { describe } from 'node:test';
+
+describe('AuthController', () => {
+  let controller: AuthController;
+  let authService: AuthService;
 
   const mockAuthService = {
     validateUser: jest.fn(),
@@ -24,6 +30,8 @@ describe('AuthController', () => {
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
+
+    authService = module.get<AuthService>(AuthService);
 
     jest.clearAllMocks();
   });
@@ -48,6 +56,7 @@ describe('AuthController', () => {
         createdAt: new Date('2023-01-01'),
         updatedAt: new Date('2023-01-01'),
       };
+
       const mockToken = { access_token: 'jwtSimulatedToken' };
 
       mockAuthService.validateUser.mockResolvedValue(mockUser);
@@ -80,8 +89,10 @@ describe('AuthController', () => {
   });
 
   describe('logout', () => {
+
     it('should return logout message', () => {
       const result = controller.logout();
+
       expect(result).toEqual({ message: 'Logout successful' });
     });
   });
