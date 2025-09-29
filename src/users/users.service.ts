@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { buildWantToReadUpdatePlan } from './utils/want-to-read.util';
 
 @Injectable()
 export class UsersService {
@@ -79,52 +80,38 @@ export class UsersService {
     bookId: string,
     wantToRead: boolean,
   ): Promise<User> {
-    const user = await this.userModel.findById(userId).exec();
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
-    }
+    const { sanitizedBookId, pullUpdate, pushUpdate } =
+      buildWantToReadUpdatePlan(bookId, wantToRead);
 
-    const normalizedBookId = bookId.trim();
-    if (!normalizedBookId) {
+    if (!sanitizedBookId) {
       throw new BadRequestException('Book ID cannot be empty');
     }
 
-    const entriesByBookId = new Map<
-      string,
-      { bookId: string; wantToRead: boolean }
-    >();
+    const pullResult = await this.userModel
+      .findByIdAndUpdate(userId, pullUpdate, { new: !wantToRead })
+      .exec();
 
-    if (Array.isArray(user.books)) {
-      for (const entry of user.books) {
-        if (!entry || typeof entry.bookId !== 'string') {
-          continue;
-        }
-
-        const entryBookId = entry.bookId.trim();
-        if (!entryBookId) {
-          continue;
-        }
-
-        entriesByBookId.set(entryBookId, {
-          bookId: entryBookId,
-          wantToRead: Boolean(entry.wantToRead),
-        });
-      }
+    if (!pullResult) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
     }
 
-    if (wantToRead) {
-      entriesByBookId.set(normalizedBookId, {
-        bookId: normalizedBookId,
-        wantToRead: true,
-      });
-    } else {
-      entriesByBookId.delete(normalizedBookId);
+    if (!wantToRead) {
+      return pullResult;
     }
 
-    user.books = Array.from(entriesByBookId.values());
-    user.markModified('books');
+    if (!pushUpdate) {
+      throw new BadRequestException('Invalid want-to-read update payload');
+    }
 
-    return await user.save();
+    const updatedUser = await this.userModel
+      .findByIdAndUpdate(userId, pushUpdate, { new: true })
+      .exec();
+
+    if (!updatedUser) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    return updatedUser;
   }
 
   async remove(id: string): Promise<void> {

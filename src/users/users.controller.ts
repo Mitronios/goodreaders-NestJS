@@ -49,16 +49,16 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-  @Patch('want-to-read/:book_id')
+  @Patch('want-to-read/:bookId')
   async updateWantToRead(
     @CurrentUser() user: AuthenticatedUser,
-    @Param('book_id') bookId: string,
+    @Param('bookId') bookId: string,
     @Body(ValidationPipe) updateWantToReadDto: UpdateWantToReadDto,
   ) {
     return await this.usersService.updateWantToReadStatus(
       user.userId,
       bookId,
-      updateWantToReadDto.want_to_read,
+      updateWantToReadDto.wantToRead,
     );
   }
 

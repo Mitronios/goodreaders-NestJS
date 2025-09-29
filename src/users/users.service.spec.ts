@@ -4,21 +4,6 @@ import { getModelToken } from '@nestjs/mongoose';
 import { UsersService } from './users.service';
 import { User } from './schemas/user.schema';
 
-type UserBookEntry = {
-  bookId: string;
-  wantToRead: boolean;
-};
-
-class MockUserDocument {
-  books: UserBookEntry[];
-  markModified = jest.fn<void, [string]>();
-  save = jest.fn<Promise<MockUserDocument>, []>(() => Promise.resolve(this));
-
-  constructor(entries: UserBookEntry[]) {
-    this.books = entries;
-  }
-}
-
 describe('UsersService', () => {
   let service: UsersService;
   let mockUserModel: {
@@ -60,30 +45,39 @@ describe('UsersService', () => {
   });
 
   describe('updateWantToReadStatus', () => {
-    const makeExec = <T>(resolvedValue: T) => ({
-      exec: jest.fn<Promise<T>, []>(() => Promise.resolve(resolvedValue)),
+    const makeExec = <T>(value: T) => ({
+      exec: jest.fn<Promise<T>, []>(() => Promise.resolve(value)),
     });
 
-    it('throws NotFoundException when user is missing', async () => {
-      mockUserModel.findById.mockReturnValue(makeExec(null));
+    it('throws BadRequestException when bookId is empty after trim', async () => {
+      await expect(
+        service.updateWantToReadStatus('user-id', '   ', true),
+      ).rejects.toBeInstanceOf(BadRequestException);
+
+      expect(mockUserModel.findByIdAndUpdate).not.toHaveBeenCalled();
+    });
+
+    it('throws NotFoundException when user does not exist', async () => {
+      mockUserModel.findByIdAndUpdate.mockReturnValueOnce(makeExec(null));
 
       await expect(
         service.updateWantToReadStatus('user-id', 'book-1', true),
       ).rejects.toBeInstanceOf(NotFoundException);
+
+      expect(mockUserModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        'user-id',
+        { $pull: { books: { bookId: 'book-1' } } },
+        { new: false },
+      );
     });
 
-    it('throws BadRequestException when bookId is empty after trim', async () => {
-      const userDoc = new MockUserDocument([]);
-      mockUserModel.findById.mockReturnValue(makeExec(userDoc));
+    it('adds a book when wantToRead is true', async () => {
+      const existingUser = { _id: 'user-id' } as unknown as User;
+      const updatedUser = { _id: 'user-id', books: [] } as unknown as User;
 
-      await expect(
-        service.updateWantToReadStatus('user-id', '   ', true),
-      ).rejects.toBeInstanceOf(BadRequestException);
-    });
-
-    it('adds a new entry when book is not present', async () => {
-      const userDoc = new MockUserDocument([]);
-      mockUserModel.findById.mockReturnValue(makeExec(userDoc));
+      mockUserModel.findByIdAndUpdate
+        .mockReturnValueOnce(makeExec(existingUser))
+        .mockReturnValueOnce(makeExec(updatedUser));
 
       const result = await service.updateWantToReadStatus(
         'user-id',
@@ -91,35 +85,29 @@ describe('UsersService', () => {
         true,
       );
 
-      expect(userDoc.books).toEqual([{ bookId: 'book-1', wantToRead: true }]);
-      expect(result).toBe(userDoc);
-      expect(userDoc.markModified).toHaveBeenCalledWith('books');
-      expect(userDoc.save).toHaveBeenCalledTimes(1);
-    });
-
-    it('updates existing entry when book is already tracked', async () => {
-      const userDoc = new MockUserDocument([
-        { bookId: 'book-1', wantToRead: false },
-      ]);
-      mockUserModel.findById.mockReturnValue(makeExec(userDoc));
-
-      const result = await service.updateWantToReadStatus(
+      expect(mockUserModel.findByIdAndUpdate).toHaveBeenNthCalledWith(
+        1,
         'user-id',
-        'book-1',
-        true,
+        { $pull: { books: { bookId: 'book-1' } } },
+        { new: false },
       );
 
-      expect(userDoc.books).toEqual([{ bookId: 'book-1', wantToRead: true }]);
-      expect(result).toBe(userDoc);
-      expect(userDoc.markModified).toHaveBeenCalledWith('books');
-      expect(userDoc.save).toHaveBeenCalledTimes(1);
+      expect(mockUserModel.findByIdAndUpdate).toHaveBeenNthCalledWith(
+        2,
+        'user-id',
+        { $push: { books: { bookId: 'book-1', wantToRead: true } } },
+        { new: true },
+      );
+
+      expect(result).toBe(updatedUser);
     });
 
-    it('removes an entry when wantToRead is set to false', async () => {
-      const userDoc = new MockUserDocument([
-        { bookId: 'book-1', wantToRead: true },
-      ]);
-      mockUserModel.findById.mockReturnValue(makeExec(userDoc));
+    it('removes a book when wantToRead is false', async () => {
+      const updatedUser = { _id: 'user-id', books: [] } as unknown as User;
+
+      mockUserModel.findByIdAndUpdate.mockReturnValueOnce(
+        makeExec(updatedUser),
+      );
 
       const result = await service.updateWantToReadStatus(
         'user-id',
@@ -127,30 +115,12 @@ describe('UsersService', () => {
         false,
       );
 
-      expect(userDoc.books).toEqual([]);
-      expect(result).toBe(userDoc);
-      expect(userDoc.markModified).toHaveBeenCalledWith('books');
-      expect(userDoc.save).toHaveBeenCalledTimes(1);
-    });
-
-    it('removes duplicate entries for the same book keeping the latest state', async () => {
-      const userDoc = new MockUserDocument([
-        { bookId: 'book-1', wantToRead: true },
-        { bookId: 'book-1', wantToRead: false },
-        { bookId: 'book-2', wantToRead: true },
-      ]);
-      mockUserModel.findById.mockReturnValue(makeExec(userDoc));
-
-      const result = await service.updateWantToReadStatus(
+      expect(mockUserModel.findByIdAndUpdate).toHaveBeenCalledWith(
         'user-id',
-        'book-1',
-        false,
+        { $pull: { books: { bookId: 'book-1' } } },
+        { new: true },
       );
-
-      expect(userDoc.books).toEqual([{ bookId: 'book-2', wantToRead: true }]);
-      expect(result).toBe(userDoc);
-      expect(userDoc.markModified).toHaveBeenCalledWith('books');
-      expect(userDoc.save).toHaveBeenCalledTimes(1);
+      expect(result).toBe(updatedUser);
     });
   });
 });
