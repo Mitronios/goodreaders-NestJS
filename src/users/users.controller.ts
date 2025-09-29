@@ -17,6 +17,9 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Public } from 'src/auth/decorators/public.decorator';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import type { AuthenticatedUser } from 'src/auth/decorators/current-user.decorator';
+import { UpdateWantToReadDto } from './dto/update-want-to-read.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('users')
@@ -44,6 +47,19 @@ export class UsersController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
+  }
+
+  @Patch('want-to-read/:bookId')
+  async updateWantToRead(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('bookId') bookId: string,
+    @Body(ValidationPipe) updateWantToReadDto: UpdateWantToReadDto,
+  ) {
+    return await this.usersService.updateWantToReadStatus(
+      user.userId,
+      bookId,
+      updateWantToReadDto.wantToRead,
+    );
   }
 
   @Patch(':id')

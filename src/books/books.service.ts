@@ -4,6 +4,8 @@ import { Model } from 'mongoose';
 import { Book, BookDocument } from './schemas/book.schema';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { BookResponseDto } from './dto/book-response.dto';
+import { BookResponseMapper } from './mappers/book-response.mapper';
 
 @Injectable()
 export class BooksService {
@@ -11,38 +13,40 @@ export class BooksService {
     @InjectModel(Book.name) private readonly bookModel: Model<BookDocument>,
   ) {}
 
-  async create(dto: CreateBookDto): Promise<BookDocument> {
-    return this.bookModel.create(dto);
+  /* CRUD using BookResponseDto */
+
+  async create(dto: CreateBookDto): Promise<BookResponseDto> {
+    const book = await this.bookModel.create(dto);
+    return BookResponseMapper.toResponse(book);
   }
 
-  async findAll(): Promise<BookDocument[]> {
-    return this.bookModel.find().exec();
+  async findAll(): Promise<BookResponseDto[]> {
+    const books = await this.bookModel.find().exec();
+    return BookResponseMapper.toResponseArray(books);
   }
 
-  async findOne(id: string): Promise<BookDocument> {
+  async findOne(id: string): Promise<BookResponseDto> {
     const book = await this.bookModel.findById(id).exec();
     if (!book) throw new NotFoundException('Book not found');
-    return book;
+    return BookResponseMapper.toResponse(book);
   }
 
-  async update(id: string, dto: UpdateBookDto): Promise<BookDocument> {
+  async update(id: string, dto: UpdateBookDto): Promise<BookResponseDto> {
     const book = await this.bookModel
       .findByIdAndUpdate(id, dto, { new: true })
       .exec();
     if (!book) throw new NotFoundException('Book not found');
-    return book;
+    return BookResponseMapper.toResponse(book);
   }
 
-  async remove(id: string): Promise<void> {
-    const res = await this.bookModel.deleteOne({ id: id });
+  async remove(id: string) {
+    const res = await this.bookModel.deleteOne({ _id: id });
     if (res.deletedCount === 0) throw new NotFoundException('Book not found');
   }
 
-  async markWantToRead(id: string): Promise<BookDocument> {
-    const book = await this.bookModel.findById(id);
-    if (!book) throw new NotFoundException('Book not found');
-    book.wantToRead = true;
-    await book.save();
-    return book;
+  /* Get all available genres */
+
+  async getAllGenres(): Promise<string[]> {
+    return this.bookModel.distinct('genre');
   }
 }

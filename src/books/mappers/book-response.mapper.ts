@@ -1,0 +1,13 @@
+import { BookDocument } from '../schemas/book.schema';
+import { BookResponseDto } from '../dto/book-response.dto';
+import { BookInput } from '../interfaces/book-input.interface';
+
+export class BookResponseMapper {
+  static toResponse(book: BookDocument): BookResponseDto {
+    return BookResponseDto.fromBook(book as BookInput);
+  }
+
+  static toResponseArray(books: BookDocument[]): BookResponseDto[] {
+    return books.map(book => this.toResponse(book));
+  }
+}

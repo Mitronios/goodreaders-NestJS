@@ -5,10 +5,8 @@ import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { Observable } from 'rxjs';
 
 @Injectable()
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 export class JwtAuthGuard extends AuthGuard('jwt') {
   constructor(private reflector: Reflector) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     super();
   }
 
@@ -24,11 +22,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       return true;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-    return super.canActivate(context) as
-      | boolean
-      | Promise<boolean>
-      | Observable<boolean>;
+    return super.canActivate(context);
   }
 }
-

@@ -2,6 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { ValidatedUser } from './interfaces/validateUser';
+
+describe('AuthController', () => {
+  let controller: AuthController;
+  
 import { describe } from 'node:test';
 
 describe('AuthController', () => {
@@ -25,6 +30,7 @@ describe('AuthController', () => {
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
+
     authService = module.get<AuthService>(AuthService);
 
     jest.clearAllMocks();
@@ -41,7 +47,16 @@ describe('AuthController', () => {
         password: '123456',
       };
 
-      const mockUser = { _id: 'userId1', email: loginDto.email, role: 'user' };
+      const mockUser: ValidatedUser = {
+        _id: 'userId1',
+        email: loginDto.email,
+        role: 'user',
+        name: 'Test User',
+        avatar: 'avatar.jpg',
+        createdAt: new Date('2023-01-01'),
+        updatedAt: new Date('2023-01-01'),
+      };
+
       const mockToken = { access_token: 'jwtSimulatedToken' };
 
       mockAuthService.validateUser.mockResolvedValue(mockUser);
@@ -74,8 +89,10 @@ describe('AuthController', () => {
   });
 
   describe('logout', () => {
-    it('should return logout message', async () => {
-      const result = await controller.logout();
+
+    it('should return logout message', () => {
+      const result = controller.logout();
+
       expect(result).toEqual({ message: 'Logout successful' });
     });
   });
