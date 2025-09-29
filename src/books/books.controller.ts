@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
@@ -29,6 +30,12 @@ export class BooksController {
   @Get()
   findAll(): Promise<BookResponseDto[]> {
     return this.booksService.findAll();
+  }
+
+  @Public()
+  @Get('search')
+  search(@Query('q') q: string): Promise<BookResponseDto[]> {
+    return this.booksService.searchBooks(q)
   }
 
   @Get('genres')
