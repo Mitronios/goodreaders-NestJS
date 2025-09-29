@@ -53,14 +53,13 @@ export class BooksService {
   /* Open search bar */
 
   async searchBooks(query: string): Promise<BookResponseDto[]> {
-    if (!query?.trim()) return []
-    const regex = new RegExp(query.trim(), 'i')
-    const books = await this.bookModel.find({
-      $or: [
-        {title: regex},
-        {author: regex},
-      ]
-    }).exec()
-    return BookResponseMapper.toResponseArray(books)
+    if (!query?.trim()) return [];
+    const regex = new RegExp(query.trim(), 'i');
+    const books = await this.bookModel
+      .find({
+        $or: [{ title: regex }, { author: regex }],
+      })
+      .exec();
+    return BookResponseMapper.toResponseArray(books);
   }
 }

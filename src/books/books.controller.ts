@@ -35,7 +35,7 @@ export class BooksController {
   @Public()
   @Get('search')
   search(@Query('q') q: string): Promise<BookResponseDto[]> {
-    return this.booksService.searchBooks(q)
+    return this.booksService.searchBooks(q);
   }
 
   @Get('genres')
