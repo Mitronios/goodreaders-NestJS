@@ -114,6 +114,34 @@ export class UsersService {
     return updatedUser;
   }
 
+  async getWantToReadStatus(
+    userId: string,
+    bookId: string,
+  ): Promise<{ bookId: string; wantToRead: boolean }> {
+    const sanitizedBookId = bookId.trim();
+
+    if (!sanitizedBookId) {
+      throw new BadRequestException('Book ID cannot be empty');
+    }
+
+    const user = await this.userModel
+      .findById(userId, {
+        books: { $elemMatch: { bookId: sanitizedBookId } },
+      })
+      .exec();
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    const entry = Array.isArray(user.books) ? user.books[0] : undefined;
+
+    return {
+      bookId: sanitizedBookId,
+      wantToRead: Boolean(entry?.wantToRead),
+    };
+  }
+
   async remove(id: string): Promise<void> {
     const result = await this.userModel.findByIdAndDelete(id).exec();
     if (!result) {

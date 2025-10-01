@@ -123,4 +123,51 @@ describe('UsersService', () => {
       expect(result).toBe(updatedUser);
     });
   });
+
+  describe('getWantToReadStatus', () => {
+    const makeExec = <T>(value: T) => ({
+      exec: jest.fn<Promise<T>, []>(() => Promise.resolve(value)),
+    });
+
+    it('throws BadRequestException when bookId is empty after trim', async () => {
+      await expect(
+        service.getWantToReadStatus('user-id', '   '),
+      ).rejects.toBeInstanceOf(BadRequestException);
+
+      expect(mockUserModel.findById).not.toHaveBeenCalled();
+    });
+
+    it('throws NotFoundException when user does not exist', async () => {
+      mockUserModel.findById.mockReturnValue(makeExec(null));
+
+      await expect(
+        service.getWantToReadStatus('user-id', 'book-1'),
+      ).rejects.toBeInstanceOf(NotFoundException);
+
+      expect(mockUserModel.findById).toHaveBeenCalledWith('user-id', {
+        books: { $elemMatch: { bookId: 'book-1' } },
+      });
+    });
+
+    it('returns wantToRead true when entry exists', async () => {
+      const userDoc = {
+        books: [{ bookId: 'book-1', wantToRead: true }],
+      } as unknown as User;
+
+      mockUserModel.findById.mockReturnValue(makeExec(userDoc));
+
+      const result = await service.getWantToReadStatus('user-id', 'book-1');
+
+      expect(result).toEqual({ bookId: 'book-1', wantToRead: true });
+    });
+
+    it('returns wantToRead false when entry is missing', async () => {
+      const userDoc = { books: [] } as unknown as User;
+      mockUserModel.findById.mockReturnValue(makeExec(userDoc));
+
+      const result = await service.getWantToReadStatus('user-id', 'book-1');
+
+      expect(result).toEqual({ bookId: 'book-1', wantToRead: false });
+    });
+  });
 });

@@ -49,6 +49,14 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
+  @Get('want-to-read/:bookId')
+  async getWantToReadStatus(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('bookId') bookId: string,
+  ) {
+    return this.usersService.getWantToReadStatus(user.userId, bookId);
+  }
+
   @Patch('want-to-read/:bookId')
   async updateWantToRead(
     @CurrentUser() user: AuthenticatedUser,
