@@ -15,14 +15,26 @@ export class BooksService {
 
   /* CRUD using BookResponseDto */
 
+  async findAllPaged(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const [docs, total] = await Promise.all([
+      this.bookModel.find().skip(skip).limit(limit).exec(),
+      this.bookModel.countDocuments().exec(),
+    ]);
+
+    return {
+      items: BookResponseMapper.toResponseArray(docs),
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit),
+    };
+  }
+
   async create(dto: CreateBookDto): Promise<BookResponseDto> {
     const book = await this.bookModel.create(dto);
     return BookResponseMapper.toResponse(book);
-  }
-
-  async findAll(): Promise<BookResponseDto[]> {
-    const books = await this.bookModel.find().exec();
-    return BookResponseMapper.toResponseArray(books);
   }
 
   async findOne(id: string): Promise<BookResponseDto> {
