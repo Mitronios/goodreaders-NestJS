@@ -30,7 +30,10 @@ export class BooksController {
   @Public()
   @Get()
   findAll(@Query() query: ListBooksQueryDto) {
-    return this.booksService.findAllPaged(query.page, query.limit);
+    const genres = query.genres
+      ? query.genres.split(',').map(g => g.trim())
+      : [];
+    return this.booksService.findAllPaged(query.page, query.limit, genres);
   }
 
   @Get('genres')

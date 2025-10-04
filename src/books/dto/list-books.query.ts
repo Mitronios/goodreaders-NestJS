@@ -1,4 +1,4 @@
-import { IsInt, Min, Max } from 'class-validator';
+import { IsInt, Min, Max, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ListBooksQueryDto {
@@ -12,4 +12,8 @@ export class ListBooksQueryDto {
   @Min(1)
   @Max(50)
   limit = 10;
+
+  @IsOptional()
+  @IsString()
+  genres?: string;
 }

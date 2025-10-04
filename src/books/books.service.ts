@@ -13,14 +13,14 @@ export class BooksService {
     @InjectModel(Book.name) private readonly bookModel: Model<BookDocument>,
   ) {}
 
-  /* CRUD using BookResponseDto */
-
-  async findAllPaged(page: number, limit: number) {
+  async findAllPaged(page: number, limit: number, genres?: string[]) {
     const skip = (page - 1) * limit;
+    const filter =
+      genres && genres.length > 0 ? { genre: { $in: genres } } : {};
 
     const [docs, total] = await Promise.all([
-      this.bookModel.find().skip(skip).limit(limit).exec(),
-      this.bookModel.countDocuments().exec(),
+      this.bookModel.find(filter).skip(skip).limit(limit).exec(),
+      this.bookModel.countDocuments(filter).exec(),
     ]);
 
     return {
@@ -55,8 +55,6 @@ export class BooksService {
     const res = await this.bookModel.deleteOne({ _id: id });
     if (res.deletedCount === 0) throw new NotFoundException('Book not found');
   }
-
-  /* Get all available genres */
 
   async getAllGenres(): Promise<string[]> {
     return this.bookModel.distinct('genre');
