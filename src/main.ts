@@ -10,6 +10,7 @@ async function bootstrap() {
       'http://localhost:5173',
       'http://13.218.32.237',
       'http://13.218.32.237:3000',
+      'http://13.218.32.237:80',
     ],
     credentials: true,
   });
