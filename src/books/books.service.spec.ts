@@ -210,7 +210,7 @@ describe('BooksService', () => {
       expect(mockBookModel.distinct).toHaveBeenCalledWith('genre');
     });
   });
-
+  
   describe('searchBooks', () => {
     it('should return books matching the query in title or author', async () => {
       const query = 'Test';

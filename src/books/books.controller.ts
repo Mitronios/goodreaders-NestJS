@@ -42,7 +42,6 @@ export class BooksController {
   @Get('genres')
   getAllGenres(): Promise<string[]> {
     return this.booksService.getAllGenres();
-  }
 
   @Get(':id')
   findOne(@Param('id') id: string): Promise<BookResponseDto> {
