@@ -42,6 +42,7 @@ export class BooksController {
   @Get('genres')
   getAllGenres(): Promise<string[]> {
     return this.booksService.getAllGenres();
+  } // <-- This was missing!
 
   @Get(':id')
   findOne(@Param('id') id: string): Promise<BookResponseDto> {
