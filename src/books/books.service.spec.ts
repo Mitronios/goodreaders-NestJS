@@ -231,10 +231,14 @@ describe('BooksService', () => {
     });
 
     it('should return an empty array if query is empty or only spaces', async () => {
+      jest.clearAllMocks();
+
       const result1 = await service.searchBooks('');
       const result2 = await service.searchBooks('   ');
+
       expect(result1).toEqual([]);
       expect(result2).toEqual([]);
+      expect(mockBookModel.find).not.toHaveBeenCalled();
     });
   });
 });
