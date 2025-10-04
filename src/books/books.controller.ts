@@ -33,6 +33,12 @@ export class BooksController {
     return this.booksService.findAllPaged(query.page, query.limit);
   }
 
+  @Public()
+  @Get('search')
+  search(@Query('q') q: string): Promise<BookResponseDto[]> {
+    return this.booksService.searchBooks(q);
+  }
+
   @Get('genres')
   getAllGenres(): Promise<string[]> {
     return this.booksService.getAllGenres();

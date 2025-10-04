@@ -43,7 +43,6 @@ describe('AuthService', () => {
 
   describe('validateUser', () => {
     it('should return user data without password if valid credentials', async () => {
-
       const mockUser = {
         email: 'test@example.com',
         password: 'hashedPass',
@@ -71,12 +70,11 @@ describe('AuthService', () => {
       usersService.findByEmail!.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-
       const result: ValidatedUser = await service.validateUser(
         'test@example.com',
         'password',
       );
-      
+
       expect(usersService.findByEmail).toHaveBeenCalledWith('test@example.com');
       expect(result).toEqual({
         email: 'test@example.com',
@@ -95,7 +93,6 @@ describe('AuthService', () => {
         email: 'test@example.com',
         password: 'hashedPass',
         toObject() {
-
           return { email: this.email, password: this.password };
         },
       };

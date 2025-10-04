@@ -15,9 +15,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  
   async login(@Body(ValidationPipe) loginDto: LoginDto) {
-
     const user = await this.authService.validateUser(
       loginDto.email,
       loginDto.password,
@@ -27,7 +25,6 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  
   logout() {
     return { message: 'Logout successful' };
   }

@@ -6,6 +6,7 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { BookResponseDto } from './dto/book-response.dto';
 import { BookResponseMapper } from './mappers/book-response.mapper';
+import { SearchUtil } from './utils/search.util';
 
 @Injectable()
 export class BooksService {
@@ -60,5 +61,19 @@ export class BooksService {
 
   async getAllGenres(): Promise<string[]> {
     return this.bookModel.distinct('genre');
+  }
+
+  /* Open search bar */
+
+  async searchBooks(query: string): Promise<BookResponseDto[]> {
+    const regex = SearchUtil.buildSearchRegex(query);
+    if (!regex) return [];
+
+    const books = await this.bookModel
+      .find({
+        $or: [{ title: regex }, { author: regex }],
+      })
+      .exec();
+    return BookResponseMapper.toResponseArray(books);
   }
 }

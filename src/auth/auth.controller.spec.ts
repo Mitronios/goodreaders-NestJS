@@ -85,7 +85,6 @@ describe('AuthController', () => {
   });
 
   describe('logout', () => {
-
     it('should return logout message', () => {
       const result = controller.logout();
 
