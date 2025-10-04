@@ -31,8 +31,6 @@ export class User extends Document {
 
   @Prop({ type: [UserBookSchema], default: [] })
   books: UserBook[];
-
-
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

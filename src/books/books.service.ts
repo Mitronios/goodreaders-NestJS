@@ -6,6 +6,7 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { BookResponseDto } from './dto/book-response.dto';
 import { BookResponseMapper } from './mappers/book-response.mapper';
+import { SearchUtil } from './utils/search.util';
 
 @Injectable()
 export class BooksService {
@@ -15,14 +16,26 @@ export class BooksService {
 
   /* CRUD using BookResponseDto */
 
+  async findAllPaged(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const [docs, total] = await Promise.all([
+      this.bookModel.find().skip(skip).limit(limit).exec(),
+      this.bookModel.countDocuments().exec(),
+    ]);
+
+    return {
+      items: BookResponseMapper.toResponseArray(docs),
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit),
+    };
+  }
+
   async create(dto: CreateBookDto): Promise<BookResponseDto> {
     const book = await this.bookModel.create(dto);
     return BookResponseMapper.toResponse(book);
-  }
-
-  async findAll(): Promise<BookResponseDto[]> {
-    const books = await this.bookModel.find().exec();
-    return BookResponseMapper.toResponseArray(books);
   }
 
   async findOne(id: string): Promise<BookResponseDto> {
@@ -48,5 +61,19 @@ export class BooksService {
 
   async getAllGenres(): Promise<string[]> {
     return this.bookModel.distinct('genre');
+  }
+
+  /* Open search bar */
+
+  async searchBooks(query: string): Promise<BookResponseDto[]> {
+    const regex = SearchUtil.buildSearchRegex(query);
+    if (!regex) return [];
+
+    const books = await this.bookModel
+      .find({
+        $or: [{ title: regex }, { author: regex }],
+      })
+      .exec();
+    return BookResponseMapper.toResponseArray(books);
   }
 }

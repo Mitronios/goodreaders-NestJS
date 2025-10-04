@@ -210,4 +210,35 @@ describe('BooksService', () => {
       expect(mockBookModel.distinct).toHaveBeenCalledWith('genre');
     });
   });
+  
+  describe('searchBooks', () => {
+    it('should return books matching the query in title or author', async () => {
+      const query = 'Test';
+      const books = [mockBookDocument];
+
+      mockBookModel.find.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(books),
+      });
+
+      const result = await service.searchBooks(query);
+
+      expect(mockBookModel.find).toHaveBeenCalledWith({
+        $or: [{ title: expect.any(RegExp) }, { author: expect.any(RegExp) }],
+      });
+      expect(result).toHaveLength(1);
+      expect(result[0]).toBeInstanceOf(BookResponseDto);
+      expect(result[0].title).toBe('Test Book');
+    });
+
+    it('should return an empty array if query is empty or only spaces', async () => {
+      jest.clearAllMocks();
+
+      const result1 = await service.searchBooks('');
+      const result2 = await service.searchBooks('   ');
+
+      expect(result1).toEqual([]);
+      expect(result2).toEqual([]);
+      expect(mockBookModel.find).not.toHaveBeenCalled();
+    });
+  });
 });

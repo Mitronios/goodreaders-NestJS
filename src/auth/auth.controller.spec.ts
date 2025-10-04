@@ -3,11 +3,10 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { ValidatedUser } from './interfaces/validateUser';
+import { describe } from 'node:test';
 
 describe('AuthController', () => {
   let controller: AuthController;
-  
-import { describe } from 'node:test';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -89,7 +88,6 @@ describe('AuthController', () => {
   });
 
   describe('logout', () => {
-
     it('should return logout message', () => {
       const result = controller.logout();
 
