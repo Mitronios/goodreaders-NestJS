@@ -7,6 +7,9 @@ import { describe } from 'node:test';
 
 describe('AuthController', () => {
   let controller: AuthController;
+
+describe('AuthController', () => {
+  let controller: AuthController;
   let authService: AuthService;
 
   const mockAuthService = {
@@ -85,7 +88,6 @@ describe('AuthController', () => {
   });
 
   describe('logout', () => {
-
     it('should return logout message', () => {
       const result = controller.logout();
 
