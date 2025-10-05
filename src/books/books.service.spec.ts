@@ -125,9 +125,7 @@ describe('BooksService', () => {
       expect(mockBookModel.find).toHaveBeenCalledWith(expectedFilter);
       expect(skip).toHaveBeenCalledWith(5);
       expect(limit).toHaveBeenCalledWith(5);
-      expect(mockBookModel.countDocuments).toHaveBeenCalledWith(
-        expectedFilter,
-      );
+      expect(mockBookModel.countDocuments).toHaveBeenCalledWith(expectedFilter);
     });
 
     it('should handle empty genre arrays gracefully', async () => {
@@ -293,7 +291,7 @@ describe('BooksService', () => {
       mockBookModel.find.mockReturnValue({ exec });
 
       const result = await service.searchBooks('Test');
-  
+
       expect(mockBookModel.find).toHaveBeenCalledWith({
         $or: [{ title: expect.any(RegExp) }, { author: expect.any(RegExp) }],
       });
@@ -306,7 +304,7 @@ describe('BooksService', () => {
 
     it('should return an empty array if query is empty or only spaces', async () => {
       jest.clearAllMocks();
-      
+
       const result1 = await service.searchBooks('');
       const result2 = await service.searchBooks('   ');
 

@@ -7,8 +7,6 @@ import {
   IsString,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
-import { IsInt, Min, Max } from 'class-validator';
-
 export class ListBooksQueryDto {
   @Type(() => Number)
   @IsInt()
