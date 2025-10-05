@@ -54,11 +54,11 @@ export class BooksController {
     return this.booksService.searchBooks(normalized);
   }
 
-  @Public()
+  /*  @Public()
   @Get('search')
   search(@Query('q') q: string): Promise<BookResponseDto[]> {
     return this.booksService.searchBooks(q);
-  }
+  }*/
 
   @Get('genres')
   getAllGenres(): Promise<string[]> {
