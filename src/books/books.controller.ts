@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -30,10 +31,22 @@ export class BooksController {
   @Public()
   @Get()
   findAll(@Query() query: ListBooksQueryDto) {
-    const genres = query.genres
-      ? query.genres.split(',').map(g => g.trim())
-      : [];
-    return this.booksService.findAllPaged(query.page, query.limit, genres);
+    return this.booksService.findAllPaged(
+      query.page,
+      query.limit,
+      query.genres,
+    );
+  }
+
+  @Public()
+  @Get('search')
+  search(@Query('q') q: string): Promise<BookResponseDto[]> {
+    const normalized = q?.trim();
+    if (!normalized) {
+      throw new BadRequestException('Query param q is required');
+    }
+
+    return this.booksService.searchBooks(normalized);
   }
 
   @Get('genres')
