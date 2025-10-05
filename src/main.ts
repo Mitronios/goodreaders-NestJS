@@ -1,15 +1,13 @@
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || [
-    'http://localhost:5173',
-    'http://13.218.32.237',
-    'http://13.218.32.237:80',
-  ];
+  const allowedOrigins = process.env.CORS_ORIGINS?.split(',').map(origin =>
+    origin.trim(),
+  );
 
   app.enableCors({
     origin: allowedOrigins,
@@ -20,7 +18,6 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api/v1');
 
-  // Enable validation globally
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

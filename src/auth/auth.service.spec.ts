@@ -69,12 +69,12 @@ describe('AuthService', () => {
 
       usersService.findByEmail!.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
-      
+
       const result: ValidatedUser = await service.validateUser(
         'test@example.com',
         'password',
       );
-      
+
       expect(usersService.findByEmail).toHaveBeenCalledWith('test@example.com');
       expect(result).toEqual({
         email: 'test@example.com',
