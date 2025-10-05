@@ -19,6 +19,12 @@ describe('BooksController', () => {
     searchBooks: jest.fn(),
   };
 
+  const mockUser = {
+    userId: 'user-123',
+    email: 'user@example.com',
+    role: 'user',
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BooksController],
@@ -57,9 +63,12 @@ describe('BooksController', () => {
       });
       mockBooksService.create.mockResolvedValue(mockBookResponse);
 
-      const result = await controller.create(createBookDto);
+      const result = await controller.create(mockUser, createBookDto);
 
-      expect(mockBooksService.create).toHaveBeenCalledWith(createBookDto);
+      expect(mockBooksService.create).toHaveBeenCalledWith(
+        createBookDto,
+        mockUser.userId,
+      );
       expect(result).toBeInstanceOf(BookResponseDto);
       expect(result.id).toBe('1');
       expect(result.title).toBe('Test Book');
@@ -180,9 +189,12 @@ describe('BooksController', () => {
 
       mockBooksService.remove.mockResolvedValue(undefined);
 
-      await controller.remove(bookId);
+      await controller.remove(mockUser, bookId);
 
-      expect(mockBooksService.remove).toHaveBeenCalledWith(bookId);
+      expect(mockBooksService.remove).toHaveBeenCalledWith(
+        bookId,
+        mockUser.userId,
+      );
     });
   });
 

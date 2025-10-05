@@ -23,6 +23,9 @@ export class Book {
 
   @Prop({ required: true, min: 1, max: 5 })
   rating: number;
+
+  @Prop({ required: true, trim: true })
+  createdBy: string;
 }
 
 export interface BookDocument extends Book, Document {

@@ -17,6 +17,8 @@ import { BookResponseDto } from './dto/book-response.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Public } from 'src/auth/decorators/public.decorator';
 import { ListBooksQueryDto } from './dto/list-books.query';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import type { AuthenticatedUser } from 'src/auth/decorators/current-user.decorator';
 
 @UseGuards(JwtAuthGuard)
 @Controller('books')
@@ -24,8 +26,11 @@ export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Post()
-  create(@Body() dto: CreateBookDto): Promise<BookResponseDto> {
-    return this.booksService.create(dto);
+  create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: CreateBookDto,
+  ): Promise<BookResponseDto> {
+    return this.booksService.create(dto, user.userId);
   }
 
   @Public()
@@ -68,7 +73,10 @@ export class BooksController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<void> {
-    return this.booksService.remove(id);
+  remove(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ): Promise<void> {
+    return this.booksService.remove(id, user.userId);
   }
 }

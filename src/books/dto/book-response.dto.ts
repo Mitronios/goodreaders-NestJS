@@ -10,6 +10,7 @@ export class BookResponseDto {
   cover?: string;
   genre: string[];
   rating: number;
+  createdBy: string;
   createdAt: Date;
   updatedAt: Date;
 
@@ -22,6 +23,7 @@ export class BookResponseDto {
     this.cover = book.cover;
     this.genre = book.genre ?? [];
     this.rating = book.rating ?? 0;
+    this.createdBy = book.createdBy ?? '';
     this.createdAt = book.createdAt ?? new Date();
     this.updatedAt = book.updatedAt ?? new Date();
   }

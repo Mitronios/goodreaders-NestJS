@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
 import { BooksService } from './books.service';
 import { Book } from './schemas/book.schema';
-import { NotFoundException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { BookResponseDto } from './dto/book-response.dto';
@@ -19,6 +19,7 @@ describe('BooksService', () => {
     review: 'Test review',
     genre: ['Test Genre'],
     rating: 5,
+    createdBy: 'creator-id-1',
     createdAt: new Date(),
     updatedAt: new Date(),
     save: jest.fn(),
@@ -68,9 +69,12 @@ describe('BooksService', () => {
 
       mockBookModel.create.mockResolvedValue(mockBookDocument);
 
-      const result = await service.create(createBookDto);
+      const result = await service.create(createBookDto, 'creator-id-1');
 
-      expect(mockBookModel.create).toHaveBeenCalledWith(createBookDto);
+      expect(mockBookModel.create).toHaveBeenCalledWith({
+        ...createBookDto,
+        createdBy: 'creator-id-1',
+      });
       expect(result).toBeInstanceOf(BookResponseDto);
       expect(result.id).toBe('test-book-id-123');
       expect(result.title).toBe('Test Book');
@@ -206,22 +210,44 @@ describe('BooksService', () => {
   });
 
   describe('remove', () => {
-    it('should remove a book', async () => {
+    it('should remove a book when requester is the creator', async () => {
       const bookId = 'test-book-id-123';
+      const execFind = jest.fn().mockResolvedValue(mockBookDocument);
 
+      mockBookModel.findById.mockReturnValue({ exec: execFind });
       mockBookModel.deleteOne.mockResolvedValue({ deletedCount: 1 });
 
-      await service.remove(bookId);
+      await service.remove(bookId, 'creator-id-1');
 
+      expect(mockBookModel.findById).toHaveBeenCalledWith(bookId);
+      expect(execFind).toHaveBeenCalled();
       expect(mockBookModel.deleteOne).toHaveBeenCalledWith({ _id: bookId });
     });
 
     it('should throw NotFoundException when book to remove not found', async () => {
       const bookId = 'non-existent-id';
+      const execFind = jest.fn().mockResolvedValue(null);
 
-      mockBookModel.deleteOne.mockResolvedValue({ deletedCount: 0 });
+      mockBookModel.findById.mockReturnValue({ exec: execFind });
 
-      await expect(service.remove(bookId)).rejects.toThrow(NotFoundException);
+      await expect(service.remove(bookId, 'creator-id-1')).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(execFind).toHaveBeenCalled();
+      expect(mockBookModel.deleteOne).not.toHaveBeenCalled();
+    });
+
+    it('should throw ForbiddenException when requester is not the creator', async () => {
+      const bookId = 'test-book-id-123';
+      const execFind = jest.fn().mockResolvedValue(mockBookDocument);
+
+      mockBookModel.findById.mockReturnValue({ exec: execFind });
+
+      await expect(service.remove(bookId, 'other-user')).rejects.toThrow(
+        ForbiddenException,
+      );
+      expect(execFind).toHaveBeenCalled();
+      expect(mockBookModel.deleteOne).not.toHaveBeenCalled();
     });
   });
 
