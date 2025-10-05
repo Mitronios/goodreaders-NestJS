@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Book, BookDocument } from './schemas/book.schema';
@@ -14,7 +14,13 @@ export class BooksService {
     @InjectModel(Book.name) private readonly bookModel: Model<BookDocument>,
   ) {}
 
-  /* CRUD using BookResponseDto */
+  async findAllPaged(page: number, limit: number, genres: string[] = []) {
+    const skip = (page - 1) * limit;
+    const filter = genres.length > 0 ? { genre: { $in: genres } } : {};
+
+    const [docs, total] = await Promise.all([
+      this.bookModel.find(filter).skip(skip).limit(limit).exec(),
+      this.bookModel.countDocuments(filter).exec(),
 
   async findAllPaged(page: number, limit: number) {
     const skip = (page - 1) * limit;
@@ -33,9 +39,11 @@ export class BooksService {
     };
   }
 
-  async create(dto: CreateBookDto): Promise<BookResponseDto> {
-    const book = await this.bookModel.create(dto);
+  async create(dto: CreateBookDto, createdBy: string): Promise<BookResponseDto> {
+    const book = await this.bookModel.create({ ...dto, createdBy });
     return BookResponseMapper.toResponse(book);
+  }
+  
   }
 
   async findOne(id: string): Promise<BookResponseDto> {
@@ -52,19 +60,23 @@ export class BooksService {
     return BookResponseMapper.toResponse(book);
   }
 
-  async remove(id: string) {
+  async remove(id: string, userId: string) {
+    const book = await this.bookModel.findById(id).exec();
+    if (!book) throw new NotFoundException('Book not found');
+
+    if (book.createdBy !== userId) {
+      throw new ForbiddenException('You cannot delete this book');
+    }
+
     const res = await this.bookModel.deleteOne({ _id: id });
     if (res.deletedCount === 0) throw new NotFoundException('Book not found');
   }
-
-  /* Get all available genres */
 
   async getAllGenres(): Promise<string[]> {
     return this.bookModel.distinct('genre');
   }
 
   /* Open search bar */
-
   async searchBooks(query: string): Promise<BookResponseDto[]> {
     const regex = SearchUtil.buildSearchRegex(query);
     if (!regex) return [];
@@ -74,6 +86,7 @@ export class BooksService {
         $or: [{ title: regex }, { author: regex }],
       })
       .exec();
+
     return BookResponseMapper.toResponseArray(books);
   }
 }

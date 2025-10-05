@@ -8,6 +8,7 @@ export interface BookInput {
   cover?: string;
   genre?: string[];
   rating?: number;
+  createdBy?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

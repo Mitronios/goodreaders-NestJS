@@ -54,7 +54,8 @@ export class UsersController {
     @CurrentUser() user: AuthenticatedUser,
     @Param('bookId') bookId: string,
   ) {
-    return this.usersService.getWantToReadStatus(user.userId, bookId);
+      
+    return await this.usersService.getWantToReadStatus(user.userId, bookId);
   }
 
   @Patch('want-to-read/:bookId')
