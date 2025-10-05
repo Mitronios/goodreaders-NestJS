@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { BadRequestException } from '@nestjs/common';
 import { BooksController } from './books.controller';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
@@ -10,11 +11,18 @@ describe('BooksController', () => {
 
   const mockBooksService = {
     create: jest.fn(),
-    findAll: jest.fn(),
+    findAllPaged: jest.fn(),
     findOne: jest.fn(),
     update: jest.fn(),
     remove: jest.fn(),
     getAllGenres: jest.fn(),
+    searchBooks: jest.fn(),
+  };
+
+  const mockUser = {
+    userId: 'user-123',
+    email: 'user@example.com',
+    role: 'user',
   };
 
   beforeEach(async () => {
@@ -29,6 +37,7 @@ describe('BooksController', () => {
     }).compile();
 
     controller = module.get<BooksController>(BooksController);
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -54,9 +63,12 @@ describe('BooksController', () => {
       });
       mockBooksService.create.mockResolvedValue(mockBookResponse);
 
-      const result = await controller.create(createBookDto);
+      const result = await controller.create(mockUser, createBookDto);
 
-      expect(mockBooksService.create).toHaveBeenCalledWith(createBookDto);
+      expect(mockBooksService.create).toHaveBeenCalledWith(
+        createBookDto,
+        mockUser.userId,
+      );
       expect(result).toBeInstanceOf(BookResponseDto);
       expect(result.id).toBe('1');
       expect(result.title).toBe('Test Book');
@@ -88,14 +100,32 @@ describe('BooksController', () => {
         }),
       ];
 
-      mockBooksService.findAll.mockResolvedValue(mockBooks);
+      mockBooksService.findAllPaged.mockResolvedValue(mockBooks);
 
-      const result = await controller.findAll();
+      const query = { page: 1, limit: 10, genres: [] };
+      const result = await controller.findAll(query as any);
 
-      expect(mockBooksService.findAll).toHaveBeenCalled();
+      expect(mockBooksService.findAllPaged).toHaveBeenCalledWith(1, 10, []);
       expect(result).toHaveLength(2);
       expect(result[0]).toBeInstanceOf(BookResponseDto);
       expect(result[1]).toBeInstanceOf(BookResponseDto);
+    });
+  });
+
+  describe('search', () => {
+    it('should trim query and delegate to service', async () => {
+      const mockBooks: BookResponseDto[] = [];
+      mockBooksService.searchBooks.mockResolvedValue(mockBooks);
+
+      const result = await controller.search('  Harry Potter  ');
+
+      expect(mockBooksService.searchBooks).toHaveBeenCalledWith('Harry Potter');
+      expect(result).toBe(mockBooks);
+    });
+
+    it('should throw BadRequestException when query is empty', () => {
+      expect(() => controller.search('   ')).toThrow(BadRequestException);
+      expect(mockBooksService.searchBooks).not.toHaveBeenCalled();
     });
   });
 
@@ -159,9 +189,12 @@ describe('BooksController', () => {
 
       mockBooksService.remove.mockResolvedValue(undefined);
 
-      await controller.remove(bookId);
+      await controller.remove(mockUser, bookId);
 
-      expect(mockBooksService.remove).toHaveBeenCalledWith(bookId);
+      expect(mockBooksService.remove).toHaveBeenCalledWith(
+        bookId,
+        mockUser.userId,
+      );
     });
   });
 

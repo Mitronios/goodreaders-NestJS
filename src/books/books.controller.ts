@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -16,6 +17,8 @@ import { BookResponseDto } from './dto/book-response.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Public } from 'src/auth/decorators/public.decorator';
 import { ListBooksQueryDto } from './dto/list-books.query';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import type { AuthenticatedUser } from 'src/auth/decorators/current-user.decorator';
 
 @UseGuards(JwtAuthGuard)
 @Controller('books')
@@ -23,14 +26,32 @@ export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Post()
-  create(@Body() dto: CreateBookDto): Promise<BookResponseDto> {
-    return this.booksService.create(dto);
+  create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: CreateBookDto,
+  ): Promise<BookResponseDto> {
+    return this.booksService.create(dto, user.userId);
   }
 
   @Public()
   @Get()
   findAll(@Query() query: ListBooksQueryDto) {
-    return this.booksService.findAllPaged(query.page, query.limit);
+    return this.booksService.findAllPaged(
+      query.page,
+      query.limit,
+      query.genres,
+    );
+  }
+
+  @Public()
+  @Get('search')
+  search(@Query('q') q: string): Promise<BookResponseDto[]> {
+    const normalized = q?.trim();
+    if (!normalized) {
+      throw new BadRequestException('Query param q is required');
+    }
+
+    return this.booksService.searchBooks(normalized);
   }
 
   @Public()
@@ -58,7 +79,10 @@ export class BooksController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<void> {
-    return this.booksService.remove(id);
+  remove(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ): Promise<void> {
+    return this.booksService.remove(id, user.userId);
   }
 }
