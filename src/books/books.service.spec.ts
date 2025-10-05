@@ -293,10 +293,11 @@ describe('BooksService', () => {
       mockBookModel.find.mockReturnValue({ exec });
 
       const result = await service.searchBooks('Test');
-
+  
       expect(mockBookModel.find).toHaveBeenCalledWith({
         $or: [{ title: expect.any(RegExp) }, { author: expect.any(RegExp) }],
       });
+
       expect(exec).toHaveBeenCalled();
       expect(result).toHaveLength(1);
       expect(result[0]).toBeInstanceOf(BookResponseDto);
@@ -304,6 +305,8 @@ describe('BooksService', () => {
     });
 
     it('should return an empty array if query is empty or only spaces', async () => {
+      jest.clearAllMocks();
+      
       const result1 = await service.searchBooks('');
       const result2 = await service.searchBooks('   ');
 

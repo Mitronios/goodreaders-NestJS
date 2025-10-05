@@ -21,6 +21,13 @@ export class BooksService {
     const [docs, total] = await Promise.all([
       this.bookModel.find(filter).skip(skip).limit(limit).exec(),
       this.bookModel.countDocuments(filter).exec(),
+
+  async findAllPaged(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const [docs, total] = await Promise.all([
+      this.bookModel.find().skip(skip).limit(limit).exec(),
+      this.bookModel.countDocuments().exec(),
     ]);
 
     return {
@@ -35,6 +42,8 @@ export class BooksService {
   async create(dto: CreateBookDto, createdBy: string): Promise<BookResponseDto> {
     const book = await this.bookModel.create({ ...dto, createdBy });
     return BookResponseMapper.toResponse(book);
+  }
+  
   }
 
   async findOne(id: string): Promise<BookResponseDto> {
@@ -67,6 +76,7 @@ export class BooksService {
     return this.bookModel.distinct('genre');
   }
 
+  /* Open search bar */
   async searchBooks(query: string): Promise<BookResponseDto[]> {
     const regex = SearchUtil.buildSearchRegex(query);
     if (!regex) return [];

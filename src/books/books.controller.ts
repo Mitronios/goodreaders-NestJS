@@ -54,16 +54,10 @@ export class BooksController {
     return this.booksService.searchBooks(normalized);
   }
 
-  /*  @Public()
-  @Get('search')
-  search(@Query('q') q: string): Promise<BookResponseDto[]> {
-    return this.booksService.searchBooks(q);
-  }*/
-
   @Get('genres')
   getAllGenres(): Promise<string[]> {
     return this.booksService.getAllGenres();
-  } // <-- This was missing!
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string): Promise<BookResponseDto> {
