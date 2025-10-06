@@ -11,7 +11,14 @@ import {
   ValidationPipe,
   Query,
   UseGuards,
+  UploadedFile,
+  UseInterceptors,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
+
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -29,8 +36,24 @@ export class UsersController {
   @Public()
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body(ValidationPipe) createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @UseInterceptors(FileInterceptor('avatar'))
+  async create(@UploadedFile() avatar: any, @Body() body: any) {
+    const userDto = plainToInstance(CreateUserDto, {
+      ...body,
+      avatar: avatar && avatar.filename ? avatar.filename : undefined,
+    });
+
+    const errors = await validate(userDto);
+    if (errors.length > 0) {
+      const messages = errors
+        .map(error =>
+          error.constraints ? Object.values(error.constraints) : [],
+        )
+        .flat();
+      throw new BadRequestException(messages);
+    }
+
+    return this.usersService.create(userDto);
   }
 
   @Get()
@@ -38,7 +61,6 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  // GET /users/search?email=user@example.com
   @Get('search')
   async findByEmail(@Query('email') email: string) {
     return this.usersService.findByEmail(email);
