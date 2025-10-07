@@ -1,16 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { UserMapper } from './mappers/user.mapper';
 import { LoginDto } from './dto/login.dto';
 import { ValidatedUser } from './interfaces/validateUser';
+import { LoginUserDto } from './dto/login-user.dto';
+import { LoginResponseDto } from './dto/login-response.dto';
 
 describe('AuthController', () => {
   let controller: AuthController;
-  let authService: AuthService;
 
   const mockAuthService = {
     validateUser: jest.fn(),
     login: jest.fn(),
+  };
+
+  const mockUserMapper = {
+    toLoginUserDto: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -21,11 +27,14 @@ describe('AuthController', () => {
           provide: AuthService,
           useValue: mockAuthService,
         },
+        {
+          provide: UserMapper,
+          useValue: mockUserMapper,
+        },
       ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
-    authService = module.get<AuthService>(AuthService);
 
     jest.clearAllMocks();
   });
@@ -35,13 +44,13 @@ describe('AuthController', () => {
   });
 
   describe('login', () => {
-    it('should call AuthService.validateUser and AuthService.login', async () => {
+    it('should call AuthService.validateUser, UserMapper.toLoginUserDto, and AuthService.login', async () => {
       const loginDto: LoginDto = {
         email: 'test@example.com',
         password: '123456',
       };
 
-      const mockUser: ValidatedUser = {
+      const mockValidatedUser: ValidatedUser = {
         _id: 'userId1',
         email: loginDto.email,
         role: 'user',
@@ -51,10 +60,24 @@ describe('AuthController', () => {
         updatedAt: new Date('2023-01-01'),
       };
 
-      const mockToken = { access_token: 'jwtSimulatedToken' };
+      const mockLoginUserDto: LoginUserDto = {
+        email: loginDto.email,
+        _id: 'userId1',
+        role: 'user',
+        name: 'Test User',
+        avatar: 'avatar.jpg',
+      };
 
-      mockAuthService.validateUser.mockResolvedValue(mockUser);
-      mockAuthService.login.mockReturnValue(mockToken);
+      const mockLoginResponse = new LoginResponseDto('jwtSimulatedToken', {
+        id: 'userId1',
+        email: loginDto.email,
+        role: 'user',
+        avatar: 'avatar.jpg',
+      });
+
+      mockAuthService.validateUser.mockResolvedValue(mockValidatedUser);
+      mockUserMapper.toLoginUserDto.mockReturnValue(mockLoginUserDto);
+      mockAuthService.login.mockReturnValue(mockLoginResponse);
 
       const result = await controller.login(loginDto);
 
@@ -62,8 +85,11 @@ describe('AuthController', () => {
         loginDto.email,
         loginDto.password,
       );
-      expect(mockAuthService.login).toHaveBeenCalledWith(mockUser);
-      expect(result).toEqual(mockToken);
+      expect(mockUserMapper.toLoginUserDto).toHaveBeenCalledWith(
+        mockValidatedUser,
+      );
+      expect(mockAuthService.login).toHaveBeenCalledWith(mockLoginUserDto);
+      expect(result).toBe(mockLoginResponse);
     });
 
     it('should throw error if validateUser fails', async () => {

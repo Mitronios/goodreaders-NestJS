@@ -4,12 +4,16 @@ import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { ValidatedUser } from './interfaces/validateUser';
+import { LoginUserDto } from './dto/login-user.dto';
+import { LoginResponseDto } from './dto/login-response.dto';
+import { UserMapper } from './mappers/user.mapper';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private userMapper: UserMapper,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<ValidatedUser> {
@@ -25,34 +29,23 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const { password: _, ...result } = user.toObject();
-    return {...result,
-      name: result.name,
-      avatar: result.avatar || null,
-    } as ValidatedUser;
+    return this.userMapper.toValidatedUser(user);
   }
 
-  login(user: {
-    email: string;
-    _id: string;
-    role: string;
-    name?: string;
-    avatar?: string;
-  }) {
+  login(user: LoginUserDto): LoginResponseDto {
     const payload: JwtPayload = {
       email: user.email,
       sub: user._id,
       role: user.role,
     };
 
-    return {
-      access_token: this.jwtService.sign(payload),
-      user: {
-        id: user._id.toString(),
-        email: user.email,
-        role: user.role || null,
-        avatar: user.avatar || null,
-      },
-    };
+    const access_token = this.jwtService.sign(payload);
+
+    return new LoginResponseDto(access_token, {
+      id: user._id,
+      email: user.email,
+      role: user.role ?? null,
+      avatar: user.avatar ?? null,
+    });
   }
 }

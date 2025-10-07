@@ -8,19 +8,24 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { UserMapper } from './mappers/user.mapper';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private userMapper: UserMapper,
+  ) {}
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body(ValidationPipe) loginDto: LoginDto) {
-    const user = await this.authService.validateUser(
+    const validatedUser = await this.authService.validateUser(
       loginDto.email,
       loginDto.password,
     );
-    return this.authService.login(user);
+    const loginUserDto = this.userMapper.toLoginUserDto(validatedUser);
+    return this.authService.login(loginUserDto);
   }
 
   @Post('logout')
