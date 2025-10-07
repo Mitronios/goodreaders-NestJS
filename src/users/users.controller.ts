@@ -13,40 +13,47 @@ import {
   UseGuards,
   UploadedFile,
   UseInterceptors,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { multerConfig } from 'src/config/multer.config';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 
 import { UsersService } from './users.service';
+import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Public } from 'src/auth/decorators/public.decorator';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import type { AuthenticatedUser } from 'src/auth/decorators/current-user.decorator';
 import { UpdateWantToReadDto } from './dto/update-want-to-read.dto';
-import type { CreateUserFormData } from './interfaces/create-user-form-data.interface';
-import { UserCreationService } from './services/user-creation.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService,
-    private readonly userCreationService: UserCreationService,
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
   @Public()
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(FileInterceptor('avatar', multerConfig))
-  async create(
-    @UploadedFile() avatar: Express.Multer.File | undefined,
-    @Body() body: CreateUserFormData,
-  ) {
-    return this.userCreationService.createUser({
-      formData: body,
-      avatarFile: avatar,
+  @UseInterceptors(FileInterceptor('avatar'))
+  async create(@UploadedFile() avatar: any, @Body() body: any) {
+    const userDto = plainToInstance(CreateUserDto, {
+      ...body,
+      avatar: avatar && avatar.filename ? avatar.filename : undefined,
     });
+
+    const errors = await validate(userDto);
+    if (errors.length > 0) {
+      const messages = errors
+        .map(error =>
+          error.constraints ? Object.values(error.constraints) : [],
+        )
+        .flat();
+      throw new BadRequestException(messages);
+    }
+
+    return this.usersService.create(userDto);
   }
 
   @Get()

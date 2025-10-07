@@ -128,8 +128,8 @@ CORS_ORIGINS=http://localhost:5173,http://your-server-ip
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd goodreaders
+   git clone https://github.com/Mitronios/goodreaders-NestJS.git
+   cd goodreaders-NestJS
    ```
 
 2. **Install dependencies**
@@ -147,89 +147,52 @@ CORS_ORIGINS=http://localhost:5173,http://your-server-ip
    ```bash
    # Make sure MongoDB is running on your system
    mongod
+   # Or use Docker:
+   docker run -d -p 27017:27017 --name mongodb mongo:latest
    ```
 
 5. **Run the application**
    ```bash
-   # Development mode
+   # Development mode with hot reload
    npm run start:dev
    
    # Production mode
-   npm run build
    npm run start:prod
+   
+   # Build the application
+   npm run build
    ```
 
 The API will be available at `http://localhost:3000/api/v1`
 
 ## 🧪 Testing
 
-### Run Tests
 ```bash
-# Unit tests
-npm test
+# Run unit tests
+npm run test
 
-# Watch mode
+# Run tests in watch mode
 npm run test:watch
 
-# Coverage
+# Run tests with coverage
 npm run test:cov
 
-# E2E tests
+# Run end-to-end tests
 npm run test:e2e
 ```
 
-### Test Coverage
-The application includes comprehensive test coverage for:
-- All service methods
-- Controller endpoints
-- Authentication flows
-- Data validation
-- Error handling
+## 📝 Code Quality
 
-## 📁 Project Structure
+```bash
+# Run linter
+npm run lint
 
+# Format code
+npm run format
+
+# Check code formatting
+npm run check
 ```
-src/
-├── auth/                 # Authentication module
-│   ├── dto/             # Data transfer objects
-│   ├── guards/          # JWT authentication guards
-│   ├── interfaces/      # TypeScript interfaces
-│   ├── mappers/         # Data transformation services
-│   ├── strategies/      # Passport strategies
-│   └── decorators/      # Custom decorators
-├── books/               # Books module
-│   ├── dto/             # Book-related DTOs
-│   ├── interfaces/      # Book interfaces
-│   ├── mappers/         # Book data mappers
-│   ├── schemas/         # MongoDB schemas
-│   └── utils/           # Utility functions
-├── users/               # Users module
-│   ├── dto/             # User DTOs
-│   ├── interfaces/      # User interfaces
-│   ├── schemas/         # User MongoDB schemas
-│   ├── services/        # User-related services
-│   └── utils/           # User utilities
-├── config/              # Configuration files
-├── main.ts              # Application entry point
-└── app.module.ts        # Root module
-```
-
-## 🔒 Security Features
-
-- **JWT Authentication**: Secure token-based authentication
-- **Password Hashing**: bcrypt with salt rounds
-- **Rate Limiting**: Prevents API abuse with configurable limits
-- **Input Validation**: Comprehensive request validation
-- **CORS Protection**: Configurable cross-origin policies
-- **Type Safety**: Full TypeScript implementation
-
-## 📊 Performance Features
-
-- **Pagination**: Efficient data pagination for large datasets
-- **Database Indexing**: Optimized MongoDB queries
-- **Static File Serving**: Efficient file serving for uploads
-- **Request Throttling**: Prevents server overload
-- **Connection Pooling**: MongoDB connection optimization
 
 ## 🎯 Recent Improvements
 
@@ -251,22 +214,66 @@ src/
 - Enhanced login response with user information
 - Type-safe authentication throughout the application
 
+## 🔒 Security Features
+
+- **JWT Authentication**: Secure token-based authentication
+- **Password Hashing**: bcrypt with salt rounds
+- **Rate Limiting**: Prevents API abuse with configurable limits
+- **Input Validation**: Comprehensive request validation
+- **CORS Protection**: Configurable cross-origin policies
+- **Type Safety**: Full TypeScript implementation
+
+## 📊 Performance Features
+
+- **Pagination**: Efficient data pagination for large datasets
+- **Database Indexing**: Optimized MongoDB queries
+- **Static File Serving**: Efficient file serving for uploads
+- **Request Throttling**: Prevents server overload
+- **Connection Pooling**: MongoDB connection optimization
+
+## 🐳 Docker Support
+
+The project includes Docker configuration for easy deployment:
+
+```bash
+# Build Docker image
+docker build -t goodreaders-api .
+
+# Run with Docker Compose (if you have docker-compose.yml)
+docker-compose up -d
+```
+
+## 📋 Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `MONGO_HOST` | MongoDB host | localhost |
+| `MONGO_PORT` | MongoDB port | 27017 |
+| `MONGO_DB` | Database name | goodreaders |
+| `PORT` | Server port | 3000 |
+| `NODE_ENV` | Environment | development |
+| `JWT_SECRET` | JWT secret key | - |
+| `JWT_EXPIRES` | JWT expiration | 2h |
+| `THROTTLE_TTL` | Rate limit window | 60 |
+| `THROTTLE_LIMIT` | Requests per window | 5 |
+| `CORS_ORIGINS` | Allowed CORS origins | - |
+
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
+## 📄 License
 
-This project is licensed under the UNLICENSED License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## 🔗 Repository
 
-For support and questions, please open an issue in the repository or contact the development team.
+- **GitHub**: [https://github.com/Mitronios/goodreaders-NestJS.git](https://github.com/Mitronios/goodreaders-NestJS.git)
 
 ---
 
-**GoodReaders API** - Empowering readers to discover, manage, and share their favorite books! 📚✨
+Built with ❤️ using NestJS by the GoodReaders Team.
