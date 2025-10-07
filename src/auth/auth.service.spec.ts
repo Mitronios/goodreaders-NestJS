@@ -107,8 +107,14 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('should return a JWT token', async () => {
-      const mockUser = { email: 'test@example.com', _id: '111', role: 'user' };
+    it('should return a JWT token and user data', () => {
+      const mockUser = {
+        email: 'test@example.com',
+        _id: '111',
+        role: 'user',
+        name: 'Test User',
+        avatar: 'avatar.jpg',
+      };
       const mockToken = 'mockedJwtToken';
 
       jwtService.sign!.mockReturnValue(mockToken);
@@ -120,7 +126,15 @@ describe('AuthService', () => {
         sub: mockUser._id,
         role: mockUser.role,
       });
-      expect(result).toEqual({ access_token: mockToken });
+      expect(result).toEqual({
+        access_token: mockToken,
+        user: {
+          id: '111',
+          email: 'test@example.com',
+          role: 'user',
+          avatar: 'avatar.jpg',
+        },
+      });
     });
   });
 });

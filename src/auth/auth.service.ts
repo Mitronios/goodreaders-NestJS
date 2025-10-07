@@ -25,10 +25,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const { password: _, ...result } = user.toObject();
-    return {...result,
+    const { password: _password, ...result } = user.toObject();
+    void _password; // Explicitly mark as intentionally unused
+    return {
+      ...result,
       name: result.name,
-      avatar: result.avatar || null,
+      avatar: result.avatar ?? null,
     } as ValidatedUser;
   }
 
@@ -50,8 +52,8 @@ export class AuthService {
       user: {
         id: user._id.toString(),
         email: user.email,
-        role: user.role || null,
-        avatar: user.avatar || null,
+        role: user.role ?? null,
+        avatar: user.avatar ?? null,
       },
     };
   }

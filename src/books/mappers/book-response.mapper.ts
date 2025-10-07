@@ -4,7 +4,11 @@ import { BookInput } from '../interfaces/book-input.interface';
 
 export class BookResponseMapper {
   static toResponse(book: BookDocument): BookResponseDto {
-    const bookObject = book.toObject({virtuals: true})
+    // Handle both real MongoDB documents and mock objects
+    const bookObject =
+      typeof book.toObject === 'function'
+        ? book.toObject({ virtuals: true })
+        : book;
     return BookResponseDto.fromBook(bookObject as BookInput);
   }
 

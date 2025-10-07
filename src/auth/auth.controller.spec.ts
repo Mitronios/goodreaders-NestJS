@@ -6,7 +6,6 @@ import { ValidatedUser } from './interfaces/validateUser';
 
 describe('AuthController', () => {
   let controller: AuthController;
-  let authService: AuthService;
 
   const mockAuthService = {
     validateUser: jest.fn(),
