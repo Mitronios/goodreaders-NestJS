@@ -4,7 +4,8 @@ import { BookInput } from '../interfaces/book-input.interface';
 
 export class BookResponseMapper {
   static toResponse(book: BookDocument): BookResponseDto {
-    return BookResponseDto.fromBook(book as BookInput);
+    const bookObject = book.toObject({virtuals: true})
+    return BookResponseDto.fromBook(bookObject as BookInput);
   }
 
   static toResponseArray(books: BookDocument[]): BookResponseDto[] {
