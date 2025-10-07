@@ -1,5 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { plainToInstance, validate } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 import { CreateUserDto } from '../dto/create-user.dto';
 import type { CreateUserFormData } from '../interfaces/create-user-form-data.interface';
 
