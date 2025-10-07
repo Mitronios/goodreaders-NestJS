@@ -1,98 +1,272 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# GoodReaders API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A comprehensive book management and social reading platform built with NestJS, MongoDB, and modern TypeScript practices.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🚀 Features
 
-## Description
+### 📚 Book Management
+- **CRUD Operations**: Create, read, update, and delete books
+- **Advanced Search**: Search books by title and author
+- **Genre Filtering**: Filter books by genre with pagination
+- **Genre Discovery**: Get all available book genres
+- **Pagination**: Efficient pagination for large book collections
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### 👥 User Management
+- **User Registration**: Multipart form data support with avatar uploads
+- **User Authentication**: JWT-based authentication system
+- **Profile Management**: Update user profiles and information
+- **Role-Based Access**: Support for different user roles (user, admin, moderator)
+- **Want-to-Read Lists**: Users can mark books they want to read
 
-## Project setup
+### 🔐 Authentication & Security
+- **JWT Authentication**: Secure token-based authentication
+- **Password Hashing**: bcrypt for secure password storage
+- **Rate Limiting**: Built-in throttling to prevent abuse
+- **CORS Support**: Configurable cross-origin resource sharing
+- **Input Validation**: Comprehensive request validation using class-validator
 
-```bash
-$ npm install
+### 📁 File Upload
+- **Avatar Uploads**: Support for user profile pictures
+- **Multipart Form Data**: Full support for multipart/form-data requests
+- **Static File Serving**: Serves uploaded files via HTTP
+- **File Validation**: Proper file type and size validation
+
+## 🏗️ Architecture
+
+### Core Modules
+- **AuthModule**: Handles authentication, JWT tokens, and user validation
+- **UsersModule**: Manages user data, profiles, and want-to-read functionality
+- **BooksModule**: Handles book CRUD operations, search, and filtering
+- **AppModule**: Main application module with global configuration
+
+### Key Services
+- **AuthService**: User validation and JWT token generation
+- **UsersService**: User management and want-to-read functionality
+- **BooksService**: Book operations with genre filtering and search
+- **UserMapper**: Type-safe data transformation between DTOs and entities
+- **UserCreationService**: Handles multipart form data user creation
+
+### Data Transfer Objects (DTOs)
+- **LoginDto**: User login credentials
+- **LoginUserDto**: Type-safe user data for login process
+- **LoginResponseDto**: Structured login response with user info
+- **CreateUserDto**: User registration data
+- **CreateBookDto**: Book creation data
+- **BookResponseDto**: Standardized book response format
+- **ListBooksQueryDto**: Pagination and filtering parameters
+
+## 🛠️ Technology Stack
+
+- **Framework**: NestJS (Node.js)
+- **Database**: MongoDB with Mongoose ODM
+- **Authentication**: JWT with Passport.js
+- **File Upload**: Multer for multipart form data
+- **Validation**: class-validator and class-transformer
+- **Security**: bcrypt for password hashing, throttling for rate limiting
+- **Testing**: Jest for unit and integration tests
+- **Code Quality**: ESLint, Prettier, TypeScript
+
+## 📡 API Endpoints
+
+### Authentication (`/api/v1/auth`)
+- `POST /login` - User login with email/password
+- `POST /logout` - User logout (returns success message)
+
+### Users (`/api/v1/users`)
+- `POST /` - Create new user (multipart form data with avatar)
+- `GET /` - Get all users (requires authentication)
+- `GET /search?email=` - Find user by email
+- `GET /:id` - Get user by ID
+- `PATCH /:id` - Update user information
+- `DELETE /:id` - Delete user
+- `GET /want-to-read/:bookId` - Get want-to-read status for a book
+- `PATCH /want-to-read/:bookId` - Update want-to-read status
+
+### Books (`/api/v1/books`)
+- `POST /` - Create new book (requires authentication)
+- `GET /` - Get paginated books with optional genre filtering
+- `GET /search?q=` - Search books by title or author
+- `GET /genres` - Get all available book genres
+- `GET /:id` - Get book by ID
+- `PATCH /:id` - Update book information
+- `DELETE /:id` - Delete book (requires authentication)
+
+## 🔧 Configuration
+
+The application uses environment variables for configuration. Copy `src/config/example.env` to `src/config/.env` and configure:
+
+```env
+# Database Configuration
+MONGO_HOST=localhost
+MONGO_PORT=27017
+MONGO_DB=goodreaders
+
+# Server Configuration
+PORT=3000
+NODE_ENV=development
+
+# JWT
+JWT_SECRET=your-secret-key
+JWT_EXPIRES=2h
+
+# Throttler
+THROTTLE_TTL=60
+THROTTLE_LIMIT=5
+
+# CORS
+CORS_ORIGINS=http://localhost:5173,http://your-server-ip
 ```
 
-## Compile and run the project.
+## 🚀 Getting Started
 
+### Prerequisites
+- Node.js (v18 or higher)
+- MongoDB (v5 or higher)
+- npm or yarn
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd goodreaders
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment**
+   ```bash
+   cp src/config/example.env src/config/.env
+   # Edit the .env file with your configuration
+   ```
+
+4. **Start MongoDB**
+   ```bash
+   # Make sure MongoDB is running on your system
+   mongod
+   ```
+
+5. **Run the application**
+   ```bash
+   # Development mode
+   npm run start:dev
+   
+   # Production mode
+   npm run build
+   npm run start:prod
+   ```
+
+The API will be available at `http://localhost:3000/api/v1`
+
+## 🧪 Testing
+
+### Run Tests
 ```bash
-# development
-$ npm run start
+# Unit tests
+npm test
 
-# watch mode
-$ npm run start:dev
+# Watch mode
+npm run test:watch
 
-# production mode
-$ npm run start:prod
+# Coverage
+npm run test:cov
+
+# E2E tests
+npm run test:e2e
 ```
 
-## Run tests
+### Test Coverage
+The application includes comprehensive test coverage for:
+- All service methods
+- Controller endpoints
+- Authentication flows
+- Data validation
+- Error handling
 
-```bash
-# unit tests
-$ npm run test
+## 📁 Project Structure
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```
+src/
+├── auth/                 # Authentication module
+│   ├── dto/             # Data transfer objects
+│   ├── guards/          # JWT authentication guards
+│   ├── interfaces/      # TypeScript interfaces
+│   ├── mappers/         # Data transformation services
+│   ├── strategies/      # Passport strategies
+│   └── decorators/      # Custom decorators
+├── books/               # Books module
+│   ├── dto/             # Book-related DTOs
+│   ├── interfaces/      # Book interfaces
+│   ├── mappers/         # Book data mappers
+│   ├── schemas/         # MongoDB schemas
+│   └── utils/           # Utility functions
+├── users/               # Users module
+│   ├── dto/             # User DTOs
+│   ├── interfaces/      # User interfaces
+│   ├── schemas/         # User MongoDB schemas
+│   ├── services/        # User-related services
+│   └── utils/           # User utilities
+├── config/              # Configuration files
+├── main.ts              # Application entry point
+└── app.module.ts        # Root module
 ```
 
-## Deployment
+## 🔒 Security Features
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+- **JWT Authentication**: Secure token-based authentication
+- **Password Hashing**: bcrypt with salt rounds
+- **Rate Limiting**: Prevents API abuse with configurable limits
+- **Input Validation**: Comprehensive request validation
+- **CORS Protection**: Configurable cross-origin policies
+- **Type Safety**: Full TypeScript implementation
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## 📊 Performance Features
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+- **Pagination**: Efficient data pagination for large datasets
+- **Database Indexing**: Optimized MongoDB queries
+- **Static File Serving**: Efficient file serving for uploads
+- **Request Throttling**: Prevents server overload
+- **Connection Pooling**: MongoDB connection optimization
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## 🎯 Recent Improvements
 
-## Resources
+### Type Safety Refactoring
+- Implemented proper DTOs for all API endpoints
+- Created UserMapper service for safe data transformations
+- Eliminated unsafe type assertions and manual object destructuring
+- Added comprehensive TypeScript interfaces
 
-Check out a few resources that may come in handy when working with NestJS:
+### Multipart Form Data Support
+- Full support for multipart/form-data requests
+- Avatar upload functionality with file validation
+- Proper handling of form data and file uploads
+- Static file serving for uploaded content
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Enhanced Authentication
+- Improved JWT token handling
+- Better user validation flow
+- Enhanced login response with user information
+- Type-safe authentication throughout the application
 
-## Support
+## 🤝 Contributing
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## Stay in touch
+## 📝 License
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+This project is licensed under the UNLICENSED License.
 
-## License
+## 🆘 Support
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+For support and questions, please open an issue in the repository or contact the development team.
+
+---
+
+**GoodReaders API** - Empowering readers to discover, manage, and share their favorite books! 📚✨
