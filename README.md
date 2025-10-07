@@ -1,98 +1,226 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# GoodReaders API 📚
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A comprehensive NestJS-based REST API for managing books, user reviews, and reading lists. Built with TypeScript, MongoDB, and JWT authentication.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🚀 Features
 
-## Description
+- **User Management**: Registration, authentication, and profile management
+- **Book Management**: Create, read, update, and delete book entries with reviews
+- **Reading Lists**: Track books users want to read
+- **Search & Filter**: Search books by title/author and filter by genres
+- **Authentication**: JWT-based secure authentication
+- **Rate Limiting**: Built-in request throttling
+- **Data Validation**: Comprehensive input validation with class-validator
+- **MongoDB Integration**: Robust data persistence with Mongoose
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 📁 Project Structure
 
-## Project setup
-
-```bash
-$ npm install
+```
+src/
+├── auth/                    # Authentication module
+│   ├── decorators/         # Custom decorators (@Public, @CurrentUser)
+│   ├── dto/               # Data transfer objects
+│   ├── guards/            # JWT authentication guard
+│   ├── interfaces/        # TypeScript interfaces
+│   ├── strategies/        # Passport JWT strategy
+│   ├── auth.controller.ts # Auth endpoints
+│   ├── auth.service.ts   # Auth business logic
+│   └── auth.module.ts     # Auth module configuration
+├── books/                  # Books management module
+│   ├── dto/               # Book DTOs (create, update, response)
+│   ├── interfaces/        # Book interfaces
+│   ├── mappers/          # Response mappers
+│   ├── schemas/           # MongoDB schemas
+│   ├── utils/             # Utility functions
+│   ├── books.controller.ts# Book endpoints
+│   ├── books.service.ts   # Book business logic
+│   └── books.module.ts    # Books module configuration
+├── users/                  # User management module
+│   ├── dto/               # User DTOs
+│   ├── schemas/           # User MongoDB schema
+│   ├── utils/             # User utilities
+│   ├── users.controller.ts# User endpoints
+│   ├── users.service.ts   # User business logic
+│   └── users.module.ts    # Users module configuration
+├── config/                 # Configuration files
+│   ├── example.env        # Environment variables template
+│   └── throttler.config.ts# Rate limiting configuration
+├── app.controller.ts      # Main app controller
+├── app.module.ts          # Root module
+├── app.service.ts         # Main app service
+└── main.ts                # Application entry point
 ```
 
-## Compile and run the project.
+## 🛠️ Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Mitronios/goodreaders-NestJS.git
+   cd goodreaders-NestJS
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp src/config/example.env .env
+   ```
+   
+   Edit `.env` with your configuration:
+   ```env
+   # Database Configuration
+   MONGO_HOST=localhost
+   MONGO_PORT=27017
+   MONGO_DB=goodreaders
+   
+   # Server Configuration
+   PORT=3000
+   NODE_ENV=development
+   
+   # JWT (Change this in production!)
+   JWT_SECRET=your-secure-jwt-secret
+   JWT_EXPIRES=2h
+   
+   # Throttler
+   THROTTLE_TTL=60
+   THROTTLE_LIMIT=5
+   
+   # CORS
+   CORS_ORIGINS=http://localhost:5173,http://your-server-ip
+   ```
+
+4. **Start MongoDB**
+   Make sure MongoDB is running on your system or use Docker:
+   ```bash
+   docker run -d -p 27017:27017 --name mongodb mongo:latest
+   ```
+
+## 🚀 Running the Application
 
 ```bash
-# development
-$ npm run start
+# Development mode with hot reload
+npm run start:dev
 
-# watch mode
-$ npm run start:dev
+# Production mode
+npm run start:prod
 
-# production mode
-$ npm run start:prod
+# Build the application
+npm run build
 ```
 
-## Run tests
+The API will be available at `http://localhost:3000/api/v1`
+
+## 🧪 Testing
 
 ```bash
-# unit tests
-$ npm run test
+# Run unit tests
+npm run test
 
-# e2e tests
-$ npm run test:e2e
+# Run tests in watch mode
+npm run test:watch
 
-# test coverage
-$ npm run test:cov
+# Run tests with coverage
+npm run test:cov
+
+# Run end-to-end tests
+npm run test:e2e
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## 📝 Code Quality
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Run linter
+npm run lint
+
+# Format code
+npm run format
+
+# Check code formatting
+npm run check
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## 📚 API Endpoints
 
-## Resources
+### Authentication
+- `POST /api/v1/auth/login` - User login
+- `POST /api/v1/auth/logout` - User logout
 
-Check out a few resources that may come in handy when working with NestJS:
+### Users
+- `POST /api/v1/users` - Register new user (public)
+- `GET /api/v1/users` - Get all users
+- `GET /api/v1/users/:id` - Get user by ID
+- `GET /api/v1/users/search?email=...` - Search user by email
+- `PATCH /api/v1/users/:id` - Update user
+- `DELETE /api/v1/users/:id` - Delete user
+- `GET /api/v1/users/want-to-read/:bookId` - Get want-to-read status
+- `PATCH /api/v1/users/want-to-read/:bookId` - Update want-to-read status
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Books
+- `GET /api/v1/books` - Get paginated books list (public)
+- `GET /api/v1/books/search?q=...` - Search books (public)
+- `GET /api/v1/books/genres` - Get all available genres
+- `GET /api/v1/books/:id` - Get book by ID
+- `POST /api/v1/books` - Create new book
+- `PATCH /api/v1/books/:id` - Update book
+- `DELETE /api/v1/books/:id` - Delete book
 
-## Support
+## 🔧 Technologies Used
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- **Framework**: NestJS
+- **Language**: TypeScript
+- **Database**: MongoDB with Mongoose
+- **Authentication**: JWT with Passport
+- **Validation**: class-validator & class-transformer
+- **Security**: bcrypt for password hashing, rate limiting
+- **Testing**: Jest
+- **Code Quality**: ESLint, Prettier
 
-## Stay in touch
+## 🐳 Docker Support
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+The project includes Docker configuration for easy deployment:
 
-## License
+```bash
+# Build Docker image
+docker build -t goodreaders-api .
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+# Run with Docker Compose (if you have docker-compose.yml)
+docker-compose up -d
+```
+
+## 📋 Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `MONGO_HOST` | MongoDB host | localhost |
+| `MONGO_PORT` | MongoDB port | 27017 |
+| `MONGO_DB` | Database name | goodreaders |
+| `PORT` | Server port | 3000 |
+| `NODE_ENV` | Environment | development |
+| `JWT_SECRET` | JWT secret key | - |
+| `JWT_EXPIRES` | JWT expiration | 2h |
+| `THROTTLE_TTL` | Rate limit window | 60 |
+| `THROTTLE_LIMIT` | Requests per window | 5 |
+| `CORS_ORIGINS` | Allowed CORS origins | - |
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🔗 Repository
+
+- **GitHub**: [https://github.com/Mitronios/goodreaders-NestJS.git](https://github.com/Mitronios/goodreaders-NestJS.git)
+
+---
+
+Built with ❤️ using NestJS by the GoodReaders Team.
