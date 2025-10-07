@@ -26,10 +26,19 @@ export class AuthService {
     }
 
     const { password: _, ...result } = user.toObject();
-    return result as ValidatedUser;
+    return {...result,
+      name: result.name,
+      avatar: result.avatar || null,
+    } as ValidatedUser;
   }
 
-  login(user: { email: string; _id: string; role: string }) {
+  login(user: {
+    email: string;
+    _id: string;
+    role: string;
+    name?: string;
+    avatar?: string;
+  }) {
     const payload: JwtPayload = {
       email: user.email,
       sub: user._id,
@@ -38,6 +47,12 @@ export class AuthService {
 
     return {
       access_token: this.jwtService.sign(payload),
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        role: user.role || null,
+        avatar: user.avatar || null,
+      },
     };
   }
 }

@@ -30,10 +30,15 @@ export class BooksService {
     pages: number;
   }> {
     const skip = (page - 1) * limit;
+    const filter: any = {};
+
+    if (genres.length > 0) {
+      filter.genre = { $in: genres };
+    }
 
     const [docs, total] = await Promise.all([
-      this.bookModel.find().skip(skip).limit(limit).exec(),
-      this.bookModel.countDocuments().exec(),
+      this.bookModel.find(filter).skip(skip).limit(limit).exec(),
+      this.bookModel.countDocuments(filter).exec(),
     ]);
 
     return {
