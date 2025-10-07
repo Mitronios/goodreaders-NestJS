@@ -4,10 +4,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { User, UserSchema } from './schemas/user.schema';
+import { UserCreationService } from './services/user-creation.service';
+import { UserDataTransformer } from './services/user-data-transformer.service';
+import { FileUploadService } from './services/file-upload.service';
 import * as fs from 'fs';
 import * as path from 'path';
 
-// Utility to ensure 'uploads' directory exists before Multer tries to use it
 function ensureUploadsDir() {
   const dir = path.join(__dirname, '../../uploads');
   if (!fs.existsSync(dir)) {
@@ -15,7 +17,6 @@ function ensureUploadsDir() {
   }
 }
 
-// Call the utility before starting the module
 ensureUploadsDir();
 
 @Module({
@@ -24,7 +25,12 @@ ensureUploadsDir();
     MulterModule.register({ dest: './uploads' }), // Folder to store avatars
   ],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [
+    UsersService,
+    UserCreationService,
+    UserDataTransformer,
+    FileUploadService,
+  ],
   exports: [UsersService],
 })
 export class UsersModule {}
