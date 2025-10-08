@@ -17,13 +17,35 @@ import { APP_GUARD } from '@nestjs/core';
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        uri:
-          configService.get<string>('MONGO_URI') ??
-          `mongodb://${configService.get<string>('MONGO_HOST')}:${configService.get<string>('MONGO_PORT')}/${configService.get<string>('MONGO_DB')}`,
-        retryWrites: true,
-        w: 'majority',
-      }),
+      useFactory: (configService: ConfigService) => {
+        const mongoUri = configService.get<string>('MONGO_URI');
+
+        if (mongoUri) {
+          return {
+            uri: mongoUri,
+            retryWrites: true,
+            w: 'majority',
+          };
+        }
+
+        // Build MongoDB URI with authentication
+        const mongoUser = configService.get<string>('MONGO_USER');
+        const mongoPassword = configService.get<string>('MONGO_PASSWORD');
+        const mongoHost = configService.get<string>('MONGO_HOST');
+        const mongoPort = configService.get<string>('MONGO_PORT');
+        const mongoDb = configService.get<string>('MONGO_DB');
+
+        const uri =
+          mongoUser && mongoPassword
+            ? `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mongoPort}/${mongoDb}?authSource=admin`
+            : `mongodb://${mongoHost}:${mongoPort}/${mongoDb}`;
+
+        return {
+          uri,
+          retryWrites: true,
+          w: 'majority',
+        };
+      },
       inject: [ConfigService],
     }),
     ThrottlerModule.forRootAsync({

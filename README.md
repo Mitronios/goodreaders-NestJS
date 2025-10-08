@@ -99,6 +99,10 @@ The application uses environment variables for configuration. Copy `src/config/e
 MONGO_HOST=localhost
 MONGO_PORT=27017
 MONGO_DB=goodreaders
+MONGO_USER=admin
+MONGO_PASSWORD=change_me
+# Alternative: Use MONGO_URI for complete connection string
+# MONGO_URI=mongodb://admin:change_me@localhost:27017/goodreaders?authSource=admin
 
 # Server Configuration
 PORT=3000
