@@ -99,8 +99,6 @@ export class BooksService {
     if (res.deletedCount === 0) throw new NotFoundException('Book not found');
   }
 
-  /* Get all available genres */
-
   async getAllGenres(): Promise<string[]> {
     return this.bookModel.distinct('genre');
   }
@@ -115,5 +113,50 @@ export class BooksService {
       })
       .exec();
     return BookResponseMapper.toResponseArray(books);
+  }
+
+  async findWantToReadByUser(userId: string): Promise<BookResponseDto[]> {
+    const books = await this.bookModel.find({ wantToReadUsers: userId }).exec();
+    return BookResponseMapper.toResponseArray(books);
+  }
+
+  async addWantToReadUser(
+    bookId: string,
+    userId: string,
+  ): Promise<BookResponseDto> {
+    const book = await this.bookModel
+      .findByIdAndUpdate(
+        bookId,
+        { $addToSet: { wantToReadUsers: userId } },
+        { new: true },
+      )
+      .exec();
+    if (!book) throw new NotFoundException('Book not found');
+    return BookResponseMapper.toResponse(book);
+  }
+
+  async removeWantToReadUser(
+    bookId: string,
+    userId: string,
+  ): Promise<BookResponseDto> {
+    const book = await this.bookModel
+      .findByIdAndUpdate(
+        bookId,
+        { $pull: { wantToReadUsers: userId } },
+        { new: true },
+      )
+      .exec();
+    if (!book) throw new NotFoundException('Book not found');
+    return BookResponseMapper.toResponse(book);
+  }
+
+  // Método para GET /books/:id/want-to-read-status
+  async getWantToReadStatus(
+    bookId: string,
+    userId: string,
+  ): Promise<{ wantToRead: boolean }> {
+    const book = await this.bookModel.findById(bookId).exec();
+    if (!book) throw new NotFoundException('Book not found');
+    return { wantToRead: book.wantToReadUsers.includes(userId) };
   }
 }
