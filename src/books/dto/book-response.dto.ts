@@ -28,7 +28,6 @@ export class BookResponseDto {
     this.updatedAt = book.updatedAt ?? new Date();
   }
 
-  // Factory method
   static fromBook(book: BookInput): BookResponseDto {
     return new BookResponseDto(book);
   }

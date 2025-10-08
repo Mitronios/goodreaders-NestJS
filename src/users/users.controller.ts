@@ -38,7 +38,6 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  // GET /users/search?email=user@example.com
   @Get('search')
   async findByEmail(@Query('email') email: string) {
     return this.usersService.findByEmail(email);

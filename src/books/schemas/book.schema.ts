@@ -34,5 +34,4 @@ export interface BookDocument extends Book, Document {
 }
 export const BookSchema = SchemaFactory.createForClass(Book);
 
-// Add index on genre field for performance optimization
 BookSchema.index({ genre: 1 }, { sparse: true });

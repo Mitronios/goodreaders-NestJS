@@ -10,7 +10,6 @@ export function convertIdToString(id: unknown, fallbackId?: string): string {
     return id;
   }
 
-  // Handle ObjectId or any object with toString method
   if (typeof id === 'object' && id !== null && 'toString' in id) {
     return (id as { toString(): string }).toString();
   }
