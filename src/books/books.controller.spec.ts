@@ -171,11 +171,12 @@ describe('BooksController', () => {
 
       mockBooksService.update.mockResolvedValue(mockBook);
 
-      const result = await controller.update(bookId, updateBookDto);
+      const result = await controller.update(mockUser, bookId, updateBookDto);
 
       expect(mockBooksService.update).toHaveBeenCalledWith(
         bookId,
         updateBookDto,
+        mockUser.userId,
       );
       expect(result).toBeInstanceOf(BookResponseDto);
       expect(result.id).toBe(bookId);
