@@ -36,11 +36,10 @@ export class BooksController {
   @Public()
   @Get()
   findAll(@Query() query: ListBooksQueryDto) {
-    return this.booksService.findAllPaged(
-      query.page,
-      query.limit,
-      query.genres,
-    );
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const genres = query.genres || [];
+    return this.booksService.findAllPaged(page, limit, genres);
   }
 
   @Public()
@@ -50,7 +49,6 @@ export class BooksController {
     if (!normalized) {
       throw new BadRequestException('Query param q is required');
     }
-
     return this.booksService.searchBooks(normalized);
   }
 
@@ -58,6 +56,38 @@ export class BooksController {
   @Get('genres')
   getAllGenres(): Promise<string[]> {
     return this.booksService.getAllGenres();
+  }
+
+  @Get('want-to-read')
+  getWantToRead(
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<BookResponseDto[]> {
+    return this.booksService.findWantToReadByUser(user.userId);
+  }
+
+  @Patch(':id/want-to-read')
+  markWantToRead(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') bookId: string,
+  ): Promise<BookResponseDto> {
+    return this.booksService.addWantToReadUser(bookId, user.userId);
+  }
+
+  @Patch(':id/unmark-want-to-read')
+  unmarkWantToRead(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') bookId: string,
+  ): Promise<BookResponseDto> {
+    return this.booksService.removeWantToReadUser(bookId, user.userId);
+  }
+
+  // Endpoint GET: /books/:id/want-to-read-status
+  @Get(':id/want-to-read-status')
+  getWantToReadStatus(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') bookId: string,
+  ): Promise<{ wantToRead: boolean }> {
+    return this.booksService.getWantToReadStatus(bookId, user.userId);
   }
 
   @Public()
