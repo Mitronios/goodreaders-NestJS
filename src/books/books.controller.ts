@@ -54,11 +54,13 @@ export class BooksController {
     return this.booksService.searchBooks(normalized);
   }
 
+  @Public()
   @Get('genres')
   getAllGenres(): Promise<string[]> {
     return this.booksService.getAllGenres();
   }
 
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string): Promise<BookResponseDto> {
     return this.booksService.findOne(id);
@@ -66,10 +68,11 @@ export class BooksController {
 
   @Patch(':id')
   update(
+    @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
     @Body() dto: UpdateBookDto,
   ): Promise<BookResponseDto> {
-    return this.booksService.update(id, dto);
+    return this.booksService.update(id, dto, user.userId);
   }
 
   @Delete(':id')

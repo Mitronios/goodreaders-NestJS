@@ -37,12 +37,26 @@ export class UsersController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(FileInterceptor('avatar'))
-  async create(@UploadedFile() avatar: any, @Body() body: any) {
-    const userDto = plainToInstance(CreateUserDto, {
-      ...body,
-      avatar: avatar && avatar.filename ? avatar.filename : undefined,
-    });
+  async create(
+    @UploadedFile() avatar: Express.Multer.File | undefined,
+    @Body() body: Record<string, unknown>,
+  ) {
+    const userDto = this.buildUserDto(body, avatar);
+    await this.validateUserDto(userDto);
+    return this.usersService.create(userDto);
+  }
 
+  private buildUserDto(
+    body: Record<string, unknown>,
+    avatar?: Express.Multer.File,
+  ): CreateUserDto {
+    return plainToInstance(CreateUserDto, {
+      ...body,
+      avatar: avatar?.filename ?? undefined,
+    });
+  }
+
+  private async validateUserDto(userDto: CreateUserDto): Promise<void> {
     const errors = await validate(userDto);
     if (errors.length > 0) {
       const messages = errors
@@ -52,8 +66,6 @@ export class UsersController {
         .flat();
       throw new BadRequestException(messages);
     }
-
-    return this.usersService.create(userDto);
   }
 
   @Get()

@@ -175,14 +175,20 @@ describe('BooksService', () => {
     it('should update a book and return BookResponseDto', async () => {
       const bookId = 'test-book-id-123';
       const updateBookDto: UpdateBookDto = { title: 'Updated Test Book' };
+      const userId = 'test-user-id';
+      const existingBook = { ...mockBookDocument, createdBy: userId };
       const updatedBook = { ...mockBookDocument, ...updateBookDto };
 
+      mockBookModel.findById.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(existingBook),
+      });
       mockBookModel.findByIdAndUpdate.mockReturnValue({
         exec: jest.fn().mockResolvedValue(updatedBook),
       });
 
-      const result = await service.update(bookId, updateBookDto);
+      const result = await service.update(bookId, updateBookDto, userId);
 
+      expect(mockBookModel.findById).toHaveBeenCalledWith(bookId);
       expect(mockBookModel.findByIdAndUpdate).toHaveBeenCalledWith(
         bookId,
         updateBookDto,
@@ -196,14 +202,33 @@ describe('BooksService', () => {
     it('should throw NotFoundException when book to update not found', async () => {
       const bookId = 'non-existent-id';
       const updateBookDto: UpdateBookDto = { title: 'Updated Test Book' };
+      const userId = 'test-user-id';
 
-      mockBookModel.findByIdAndUpdate.mockReturnValue({
+      mockBookModel.findById.mockReturnValue({
         exec: jest.fn().mockResolvedValue(null),
       });
 
-      await expect(service.update(bookId, updateBookDto)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.update(bookId, updateBookDto, userId),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw ForbiddenException when requester is not the creator', async () => {
+      const bookId = 'test-book-id-123';
+      const updateBookDto: UpdateBookDto = { title: 'Updated Test Book' };
+      const userId = 'different-user-id';
+      const existingBook = {
+        ...mockBookDocument,
+        createdBy: 'original-creator-id',
+      };
+
+      mockBookModel.findById.mockReturnValue({
+        exec: jest.fn().mockResolvedValue(existingBook),
+      });
+
+      await expect(
+        service.update(bookId, updateBookDto, userId),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 

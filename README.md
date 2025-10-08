@@ -44,7 +44,6 @@ A comprehensive book management and social reading platform built with NestJS, M
 - **UsersService**: User management and want-to-read functionality
 - **BooksService**: Book operations with genre filtering and search
 - **UserMapper**: Type-safe data transformation between DTOs and entities
-- **UserCreationService**: Handles multipart form data user creation
 
 ### Data Transfer Objects (DTOs)
 - **LoginDto**: User login credentials

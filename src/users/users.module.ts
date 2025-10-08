@@ -7,7 +7,6 @@ import { User, UserSchema } from './schemas/user.schema';
 import * as fs from 'fs';
 import * as path from 'path';
 
-// Utility to ensure 'uploads' directory exists before Multer tries to use it
 function ensureUploadsDir() {
   const dir = path.join(__dirname, '../../uploads');
   if (!fs.existsSync(dir)) {
@@ -15,7 +14,6 @@ function ensureUploadsDir() {
   }
 }
 
-// Call the utility before starting the module
 ensureUploadsDir();
 
 @Module({

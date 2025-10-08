@@ -64,12 +64,27 @@ export class BooksService {
     return BookResponseMapper.toResponse(book);
   }
 
-  async update(id: string, dto: UpdateBookDto): Promise<BookResponseDto> {
-    const book = await this.bookModel
+  async update(
+    id: string,
+    dto: UpdateBookDto,
+    userId: string,
+  ): Promise<BookResponseDto> {
+    const book = await this.bookModel.findById(id).exec();
+    if (!book) throw new NotFoundException('Book not found');
+
+    if (book.createdBy !== userId) {
+      throw new ForbiddenException('You cannot update this book');
+    }
+
+    const updatedBook = await this.bookModel
       .findByIdAndUpdate(id, dto, { new: true })
       .exec();
-    if (!book) throw new NotFoundException('Book not found');
-    return BookResponseMapper.toResponse(book);
+
+    if (!updatedBook) {
+      throw new NotFoundException('Book not found');
+    }
+
+    return BookResponseMapper.toResponse(updatedBook);
   }
 
   async remove(id: string, userId: string): Promise<void> {
