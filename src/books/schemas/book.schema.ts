@@ -26,12 +26,16 @@ export class Book {
 
   @Prop({ required: true, trim: true })
   createdBy: string;
+
+  @Prop({ type: [String], default: [] })
+  wantToReadUsers: string[];
 }
 
 export interface BookDocument extends Book, Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
 export const BookSchema = SchemaFactory.createForClass(Book);
 
 BookSchema.index({ genre: 1 }, { sparse: true });
